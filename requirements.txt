@@ -1,0 +1,13 @@
+torch==2.4.0
+torchvision
+torchaudio
+pymilvus
+sentence-transformers
+beir
+tqdm
+transformers==4.43.2
+optimum==1.21.4
+optimum-intel==1.18.3
+intel-extension-for-transformers
+intel_extension_for_pytorch
+httpx
