@@ -102,7 +102,7 @@ def extract_text_and_images_from_docx(docx_file, base_image_dir):
     
     修改点：在 base_image_dir 下为每个文件创建子目录保存图片。
     """
-    # 根据 docx 文件名创建子目录
+    # 根据 docx 文件名创建子目录（例如 extracted_images/文件名/）
     base = os.path.splitext(os.path.basename(docx_file))[0]
     image_dir = os.path.join(base_image_dir, base)
     if not os.path.exists(image_dir):
@@ -165,7 +165,6 @@ def replace_image_placeholders_with_captions(text, image_dir, processor, model, 
         else:
             return f"[图片 {image_filename} 未找到] [/]"
     return pattern.sub(_replace_func, text)
-
 
 
 ##############################################
@@ -275,6 +274,76 @@ def save_chunks_as_files(docx_file, chunks, base_output_dir):
 
 
 ##############################################
+# 7) 加载文本embedding模型，并对每个chunk做embedding
+##############################################
+
+def load_embedding_model(model_path="/nvme0/models/BAAI/bge-large-zh-v1.5"):
+    """
+    加载 BGE-large-zh-v1.5 的文本embedding模型。
+    返回 (embed_tokenizer, embed_model, embed_device)。
+    """
+    from transformers import AutoModel, AutoTokenizer
+    embed_tokenizer = AutoTokenizer.from_pretrained(model_path)
+    embed_model = AutoModel.from_pretrained(model_path)
+    embed_model.eval()
+    embed_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    embed_model.to(embed_device)
+    return embed_tokenizer, embed_model, embed_device
+
+
+def compute_chunk_embedding(chunk_text, embed_tokenizer, embed_model, embed_device, max_length=512, stride=256):
+    """
+    对给定 chunk_text 计算embedding。
+    使用 embed_tokenizer 编码, 然后用 embed_model 得到 embedding。
+    返回 embedding (列表形式)。
+    """
+    inputs = embed_tokenizer(chunk_text, return_tensors="pt", truncation=False)
+    inputs = inputs.to(embed_device)
+    input_ids = inputs["input_ids"][0]
+    embeddings = []
+    for start in range(0, len(input_ids), stride):
+        end = start + max_length
+        window_ids = input_ids[start:end]
+        window_inputs = {"input_ids": window_ids.unsqueeze(0)}
+        with torch.no_grad():
+            outputs = embed_model(**window_inputs)
+        # 这里使用 pooler_output 或 mean pooling
+        if hasattr(outputs, "pooler_output") and outputs.pooler_output is not None:
+            window_emb = outputs.pooler_output
+        else:
+            window_emb = outputs.last_hidden_state.mean(dim=1)
+        embeddings.append(window_emb.squeeze(0))
+    # 聚合各个窗口的embedding（例如取均值）
+    final_embedding = torch.stack(embeddings, dim=0).mean(dim=0)
+    return final_embedding.squeeze().cpu().tolist()
+
+    # inputs = inputs.to(embed_device)
+    # with torch.no_grad():
+    #     outputs = embed_model(**inputs)
+    # # 如果模型有 pooler_output，优先使用，否则采用 mean pooling
+    # if hasattr(outputs, "pooler_output") and outputs.pooler_output is not None:
+    #     embedding = outputs.pooler_output
+    # else:
+    #     embedding = outputs.last_hidden_state.mean(dim=1)
+    # return embedding.squeeze().cpu().tolist()
+
+
+def save_embeddings(docx_file, embeddings, output_dir="embedding/"):
+    """
+    将每个 chunk 的embedding结果保存到文件：
+    文件路径: output_dir/<docx_basename>.emb
+    保存格式为 JSON, 每个键为 chunk_id, 值为 embedding (列表)。
+    """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    base = os.path.splitext(os.path.basename(docx_file))[0]
+    emb_filepath = os.path.join(output_dir, f"{base}.emb")
+    with open(emb_filepath, "w", encoding="utf-8") as f:
+        json.dump(embeddings, f, ensure_ascii=False, indent=4)
+    print(f"Embedding结果已保存到 {emb_filepath}")
+
+
+##############################################
 # 主程序示例
 ##############################################
 
@@ -283,22 +352,22 @@ if __name__ == "__main__":
     docx_file = "docx/地理/2021北京东城高三一模地理（教师版）.docx"
     
     # 基础输出目录
-    base_image_dir = "extracted_images"
-    base_chunks_output_dir = "chunks_texts"
+    base_image_dir = "extracted_images/地理/"
+    base_chunks_output_dir = "chunks_texts/地理/"
     relationships_output_file = "relationships.json"
+    embedding_output_dir = "embedding/地理/"
 
     # 1) 加载 "千问2.5-VL" (中文多模态)
     processor, model, device = load_chinese_image_captioning_model(
         model_name="/nvme0/models/Qwen/Qwen2.5-VL-7B-Instruct/"
     )
 
-    # 2) 提取文本 + 图片 (插入占位符)
-    # 提取函数返回文本以及该文件对应的图片目录（子目录）
+    # 2) 提取文本 + 图片(插入占位符)
     text_with_placeholders, file_image_dir = extract_text_and_images_from_docx(docx_file, base_image_dir)
     print("===== 提取到的文本 (含占位符) =====")
     print(text_with_placeholders)
 
-    # 3) 替换占位符，调用千问多模态生成中文描述
+    # 3) 替换占位符, 调用千问多模态生成中文描述
     text_with_captions = replace_image_placeholders_with_captions(
         text_with_placeholders,
         file_image_dir,
@@ -324,6 +393,18 @@ if __name__ == "__main__":
     save_relationships(docx_file, relationships, relationships_output_file)
     print(f"\n关系信息已保存到 {relationships_output_file}")
 
-    # 7) 将每个 chunk 单独保存为文本文件
+    # 7) 将每个 chunk 单独保存为文本文件（在 chunks_texts/ 下创建子目录）
     save_chunks_as_files(docx_file, question_chunks, base_chunks_output_dir)
     print(f"每个 chunk 的文本已保存到目录 {base_chunks_output_dir}")
+
+    # 8) 加载 embedding 模型 (BGE-large-zh-v1.5)
+    embed_tokenizer, embed_model, embed_device = load_embedding_model(model_path="/nvme0/models/BAAI/bge-large-zh-v1.5")
+
+    # 9) 对每个 chunk 计算 embedding
+    embeddings = {}
+    for idx, chunk in enumerate(question_chunks, start=1):
+        emb = compute_chunk_embedding(chunk, embed_tokenizer, embed_model, embed_device)
+        embeddings[idx] = emb
+
+    # 10) 保存 embedding 结果到 embedding/<docx_basename>.emb 文件中
+    save_embeddings(docx_file, embeddings, output_dir=embedding_output_dir)
