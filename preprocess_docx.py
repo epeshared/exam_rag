@@ -203,8 +203,9 @@ def replace_image_placeholders_with_captions(text, image_dir,
         if os.path.exists(image_path):
             # 调用多模态推理
             caption = chinese_image_caption_inference(image_path, processor, model, device)
+            remove_line_numbering(caption)
             print("生成的中文描述: ", caption)
-            return f"[图片描述] {caption}"
+            return f"[{image_path}] {caption}"
         else:
             return f"[图片 {image_filename} 未找到]"
 
@@ -261,12 +262,23 @@ def chunk_exam_geography(raw_text):
 
     return chunks
 
+def remove_line_numbering(text: str) -> str:
+    """
+    移除形如 '1. ' 或 '12. ' 等行开头的编号。
+    只要行首是数字+点+空格，就把它去掉。
+    """
+    # ^\d+\.\s+ 表示行首(^)，至少一位数字(\d+)，然后点(\.)，然后至少一个空格(\s+)
+    # flags=re.MULTILINE 允许处理多行模式
+    # new_text = re.sub(r'^\d+\.\s+', '', text, flags=re.MULTILINE)
+    text_no_numbers = re.sub(r'\d+\.\s+', '', text)
+    return text_no_numbers
+
 ##############################################
 # 主程序示例
 ##############################################
 
 if __name__ == "__main__":
-    docx_file = "docx/2021dongcheng.docx"
+    docx_file = "docx/2021北京东城高三一模地理（教师版）.docx"
     image_dir = "extracted_images"
 
     # 1) 加载 "千问2.5-VL" (中文多模态)
@@ -284,7 +296,7 @@ if __name__ == "__main__":
         text_with_placeholders,
         image_dir,
         processor, model, device
-    )
+    ) 
 
     print("\n\n===== 替换后（带中文图片描述）的文本 =====")
     print(text_with_captions)
