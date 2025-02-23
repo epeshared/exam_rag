@@ -22,7 +22,7 @@ def load_embedding_model(model_path):
         logger.error("加载 embedding 模型时出错: %s", e, exc_info=True)
         raise
 
-def compute_chunk_embedding(chunk_text, embed_tokenizer, embed_model, embed_device, max_length=512, stride=256):
+def compute_chunk_embedding(chunk_text, embed_tokenizer, embed_model, embed_device="cpu", max_length=512, stride=256):
     try:
         inputs = embed_tokenizer(chunk_text, return_tensors="pt", truncation=False)
         inputs = inputs.to(embed_device)
