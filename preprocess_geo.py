@@ -7,7 +7,6 @@ import json
 # --- 为图像描述模型做准备 ---
 import torch
 from PIL import Image, UnidentifiedImageError
-
 from transformers import (
     Qwen2_5_VLForConditionalGeneration,
     AutoProcessor
@@ -19,7 +18,7 @@ from qwen_vl_utils import process_vision_info
 # 1) 加载图像描述模型 (Qwen2.5-VL-7B-Instruct)
 ##############################################
 
-def load_chinese_image_captioning_model(model_name="Qwen/Qwen2.5-VL-7B-Instruct"):
+def load_chinese_image_captioning_model(model_name):
     """
     加载一个中文多模态模型 Qwen2.5-VL-7B-Instruct, 用于看图说话。
     返回 (processor, model, device)。
@@ -99,10 +98,8 @@ def extract_text_and_images_from_docx(docx_file, base_image_dir):
     """
     使用 python-docx 从 docx 中读取所有段落,
     当段落里遇到行内图片时, 导出图片并在文本中插入 [imageX.png] 占位符。
-    
     修改点：在 base_image_dir 下为每个文件创建子目录保存图片。
     """
-    # 根据 docx 文件名创建子目录（例如 extracted_images/文件名/）
     base = os.path.splitext(os.path.basename(docx_file))[0]
     image_dir = os.path.join(base_image_dir, base)
     if not os.path.exists(image_dir):
@@ -138,7 +135,7 @@ def extract_text_and_images_from_docx(docx_file, base_image_dir):
         line_text = "".join(paragraph_chunks).strip()
         if line_text:
             final_lines.append(line_text)
-    return "\n".join(final_lines), image_dir  # 返回文本和图片存放的子目录路径
+    return "\n".join(final_lines), image_dir
 
 
 ##############################################
@@ -300,6 +297,7 @@ def compute_chunk_embedding(chunk_text, embed_tokenizer, embed_model, embed_devi
     inputs = embed_tokenizer(chunk_text, return_tensors="pt", truncation=False)
     inputs = inputs.to(embed_device)
     input_ids = inputs["input_ids"][0]
+
     embeddings = []
     for start in range(0, len(input_ids), stride):
         end = start + max_length
@@ -316,11 +314,9 @@ def compute_chunk_embedding(chunk_text, embed_tokenizer, embed_model, embed_devi
     # 聚合各个窗口的embedding（例如取均值）
     final_embedding = torch.stack(embeddings, dim=0).mean(dim=0)
     return final_embedding.squeeze().cpu().tolist()
-
-    # inputs = inputs.to(embed_device)
+    
     # with torch.no_grad():
     #     outputs = embed_model(**inputs)
-    # # 如果模型有 pooler_output，优先使用，否则采用 mean pooling
     # if hasattr(outputs, "pooler_output") and outputs.pooler_output is not None:
     #     embedding = outputs.pooler_output
     # else:
@@ -347,19 +343,18 @@ def save_embeddings(docx_file, embeddings, output_dir="embedding/"):
 # 主程序示例
 ##############################################
 
-if __name__ == "__main__":
-    # 需要处理的 docx 文件
-    docx_file = "docx/地理/2021北京东城高三一模地理（教师版）.docx"
-    
-    # 基础输出目录
-    base_image_dir = "extracted_images/地理/"
-    base_chunks_output_dir = "chunks_texts/地理/"
-    relationships_output_file = "relationships.json"
-    embedding_output_dir = "embedding/地理/"
+def process_geo_test_paper(docx_file, config):
+    # docx_file = config["docx_file"]
+    base_image_dir = config["base_image_dir"] + "/地理/"
+    base_chunks_output_dir = config["base_chunks_output_dir"] + "/地理/"
+    relationships_output_file = config["relationships_output_file"]
+    embedding_output_dir = config["embedding_output_dir"] + "/地理/"
+    qwen_model_name = config["vl_model_path"]
+    embedding_model_path = config["embedding_model_path"]
 
     # 1) 加载 "千问2.5-VL" (中文多模态)
     processor, model, device = load_chinese_image_captioning_model(
-        model_name="/nvme0/models/Qwen/Qwen2.5-VL-7B-Instruct/"
+        model_name=qwen_model_name
     )
 
     # 2) 提取文本 + 图片(插入占位符)
@@ -398,7 +393,7 @@ if __name__ == "__main__":
     print(f"每个 chunk 的文本已保存到目录 {base_chunks_output_dir}")
 
     # 8) 加载 embedding 模型 (BGE-large-zh-v1.5)
-    embed_tokenizer, embed_model, embed_device = load_embedding_model(model_path="/nvme0/models/BAAI/bge-large-zh-v1.5")
+    embed_tokenizer, embed_model, embed_device = load_embedding_model(model_path=embedding_model_path)
 
     # 9) 对每个 chunk 计算 embedding
     embeddings = {}
@@ -408,3 +403,24 @@ if __name__ == "__main__":
 
     # 10) 保存 embedding 结果到 embedding/<docx_basename>.emb 文件中
     save_embeddings(docx_file, embeddings, output_dir=embedding_output_dir)
+    print(f"\nEmbedding结果已保存到目录 {embedding_output_dir}")
+
+def process_geo_files(config_path):
+    # 从配置文件中读取所有路径和模型名称参数
+    with open(config_path, "r", encoding="utf-8") as f:
+        config = json.load(f)
+    
+    # 从配置中读取上传文件的基础路径，例如 "upload_file_path": "data"
+    upload_file_path = config["upload_file_path"]
+    # 构造 "地理" 子目录路径
+    geo_dir = os.path.join(upload_file_path, "地理")
+    
+    # 遍历 geo_dir 下所有文件，如果文件扩展名是 .docx，则调用 process_geo_test_paper
+    for filename in os.listdir(geo_dir):
+        if filename.lower().endswith(".docx"):
+            docx_file_path = os.path.join(geo_dir, filename)
+            print(f"\n正在处理文件: {docx_file_path}")
+            process_geo_test_paper(docx_file_path, config)
+
+if __name__ == "__main__":
+    process_geo_files("config.json")
