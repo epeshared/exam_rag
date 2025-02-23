@@ -4,7 +4,11 @@ import numpy as np
 import faiss
 from log_config import get_logger
 
-logger = get_logger(__name__, log_file="logs/vdb_index.log")
+with open("config.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+log_path = config.get("log_path")
+logger = get_logger(__name__, log_file=log_path)
 
 class VectorDBIndex:
     """

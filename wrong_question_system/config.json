@@ -1,11 +1,12 @@
 {
-    "upload_file_path": "files/",
-    "base_image_dir": "extracted_images/",
-    "base_chunks_output_dir": "chunks_texts/",
+    "upload_file_path": "../files/",
+    "base_image_dir": "../extracted_images/",
+    "base_chunks_output_dir": "../chunks_texts/",
     "relationships_output_file": "relationships.json",
-    "embedding_output_dir": "embedding/",
+    "embedding_output_dir": "../embedding/",
     "vl_model_path": "/nvme0/models/Qwen/Qwen2.5-VL-7B-Instruct/",
     "embedding_model_path": "/nvme0/models/BAAI/bge-large-zh-v1.5",
+    "log_path": "../logs/logs.log",
     "log_level": "INFO"
 }
   

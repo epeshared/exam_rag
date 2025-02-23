@@ -6,7 +6,11 @@ from transformers import AutoModel, AutoTokenizer
 
 from log_config import get_logger
 
-logger = get_logger(__name__, "logs/logs.log")
+with open("config.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+log_path = config.get("log_path")
+logger = get_logger(__name__, log_file=log_path)
 
 def load_embedding_model(model_path):
     try:

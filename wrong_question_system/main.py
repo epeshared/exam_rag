@@ -5,7 +5,11 @@ from log_config import get_logger
 from vdb_index import VectorDBIndex
 from query_embedding import get_query_embedding_bge  # 或 get_query_embedding_deepseek
 
-logger = get_logger(__name__, log_file="logs/main.log")
+with open("config.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+log_path = config.get("log_path")
+logger = get_logger(__name__, log_file=log_path)
 
 def process_query(query: str, config, class_name):
     """

@@ -1,11 +1,15 @@
 # query_embedding.py
 import requests
-import torch
 import numpy as np
 from log_config import get_logger
 from embedding import load_embedding_model, compute_chunk_embedding
 
-logger = get_logger(__name__, log_file="logs/query_embedding.log")
+import json
+with open("config.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+log_path = config.get("log_path", "logs/logs.log")
+logger = get_logger(__name__, log_file=log_path)
 
 def get_query_embedding_deepseek(query: str) -> list:
     """

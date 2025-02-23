@@ -1,8 +1,13 @@
 # text_chunk.py
 import re
-from log_config import get_logger
+from wrong_question_system.log_config import get_logger
 
-logger = get_logger(__name__, "logs/logs.log")
+import json
+with open("config.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+log_path = config.get("log_path", "logs/logs.log")
+logger = get_logger(__name__, log_file=log_path)
 
 def chunk_exam_geography(raw_text):
     BOUNDARY_KEYWORDS = [

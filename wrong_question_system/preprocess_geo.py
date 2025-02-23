@@ -1,13 +1,17 @@
 # main.py
 import os
 import json
-from log_config import get_logger
-from docx_parser import extract_text_and_images_from_docx, replace_image_placeholders_with_captions, remove_line_numbering
-from image_caption import load_chinese_image_captioning_model
-from text_chunk import chunk_exam_geography, extract_chunk_relationships
-from embedding import load_embedding_model, compute_chunk_embedding, save_embeddings
+from wrong_question_system.log_config import get_logger
+from wrong_question_system.docx_parser import extract_text_and_images_from_docx, replace_image_placeholders_with_captions, remove_line_numbering
+from wrong_question_system.image_caption import load_chinese_image_captioning_model
+from wrong_question_system.text_chunk import chunk_exam_geography, extract_chunk_relationships
+from wrong_question_system.embedding import load_embedding_model, compute_chunk_embedding, save_embeddings
 
-logger = get_logger(__name__, "logs/preprocess_geo.log")
+with open("config.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+log_path = config.get("log_path", "logs/logs.log")
+logger = get_logger(__name__, log_file=log_path)
 
 def save_relationships(docx_file, relationships, output_path):
     try:
