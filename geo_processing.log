@@ -1,0 +1,502 @@
+2025-02-23 09:36:57,582 [INFO] 日志配置成功，日志级别：INFO
+2025-02-23 09:36:57,582 [INFO] 开始处理文件: files/地理/2021北京东城高三一模地理（教师版）.docx
+2025-02-23 09:36:57,583 [INFO] 加载图像描述模型: /nvme0/models/Qwen/Qwen2.5-VL-7B-Instruct/
+2025-02-23 09:37:00,137 [INFO] 模型加载成功，使用设备: cpu
+2025-02-23 09:37:00,154 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image1.png
+2025-02-23 09:37:00,156 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image2.png
+2025-02-23 09:37:00,157 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image3.png
+2025-02-23 09:37:00,158 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image4.png
+2025-02-23 09:37:00,159 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image5.png
+2025-02-23 09:37:00,160 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image6.png
+2025-02-23 09:37:00,161 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image7.png
+2025-02-23 09:37:00,162 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image8.png
+2025-02-23 09:37:00,164 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image9.png
+2025-02-23 09:37:00,164 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image10.png
+2025-02-23 09:37:00,165 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image11.png
+2025-02-23 09:37:00,166 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image12.png
+2025-02-23 09:37:00,166 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image13.png
+2025-02-23 09:37:00,167 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image14.png
+2025-02-23 09:37:00,167 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image15.png
+2025-02-23 09:37:00,168 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image16.png
+2025-02-23 09:37:00,168 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image17.png
+2025-02-23 09:37:00,169 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image18.png
+2025-02-23 09:37:00,170 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image19.png
+2025-02-23 09:37:00,170 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image20.png
+2025-02-23 09:37:00,171 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image21.png
+2025-02-23 09:37:00,171 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image22.png
+2025-02-23 09:37:00,172 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image23.png
+2025-02-23 09:37:00,185 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image24.png
+2025-02-23 09:37:00,186 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image25.png
+2025-02-23 09:37:00,189 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image26.png
+2025-02-23 09:37:00,189 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image27.png
+2025-02-23 09:37:00,190 [INFO] 提取图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image28.png
+2025-02-23 09:37:00,193 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image1.png
+2025-02-23 09:37:00,198 [WARNING] 图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image1.png 太小 (23x32)，无法处理
+2025-02-23 09:37:00,198 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image2.png
+2025-02-23 09:37:21,753 [INFO] 生成图片描述成功: 这是一张南极洲的地图，图中标注了几个重要的地点和中国已经建成的考察站。地图上显示了南极洲的地理位置，包括长城站、中山站、昆仑站等中国考察站的位置。地图上还标注了澳大利亚、新西兰以及一些港口城市，如弗里曼特尔港、霍巴特港等。地图的右下角有一个图标说明，表示“已建成中国考察站”和“港口”。地图的中心是南极洲，周围是周围的海洋和部分陆地。
+2025-02-23 09:37:21,754 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image3.png
+2025-02-23 09:37:47,386 [INFO] 生成图片描述成功: 这张图片展示了一个大气垂直分层的示意图。图中显示了地球的大气层从地面到高空的不同高度层次，以及这些层次之间的边界线。具体来说：
+
+1. 图中有一个地球的轮廓，表示地球表面。
+2. 在地球表面之上，有四个标注点（①、②、③、④），分别标出了不同高度的数值：①为100千米，②为60千米，③为140千米，④也为100千米。
+3. 从地面到100千米的高度范围被标记为“①100千米”，这可能代表对流层的顶部。
+4. 从100千米到60千米的高度范围被标记为“②60千米”，这可能代表平流层的底部。
+5. 从60千米到140千米的高度范围被标记为“③140千米”，这可能代表中间层的顶部。
+6. 从140千米到100千米的高度范围被标记为“④100千米”，这可能代表热层的底部。
+
+这些标注和界限可能用于描述大气层的不同
+2025-02-23 09:37:47,386 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image4.png
+2025-02-23 09:38:03,688 [INFO] 生成图片描述成功: 这是一组四张图表，每张图表都展示了不同海拔高度上的年降水量分布情况。每张图表的横轴表示海拔（米），纵轴表示年降水量（毫米）。图表中还标注了不同植被类型的分布范围，如针叶林、针阔混交林、亚热带常绿阔叶林等。
+
+1. 甲图显示的是一个山地的年降水量分布，从山脚到山顶，年降水量逐渐减少。
+2. 乙图展示了一个高海拔地区的年降水量分布，随着海拔升高，年降水量急剧下降。
+3. 丙图描绘了一个山地的年降水量变化，从山脚到山顶，年降水量先增加后减少。
+4. 丁图则是一个高山地区的年降水量分布，随着海拔升高，年降水量逐渐减少，并且在一定高度上出现了冰雪覆盖的现象。
+
+这些图表可以帮助我们理解不同海拔高度上的降水特征以及植被分布与降水的关系。
+2025-02-23 09:38:03,689 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image5.png
+2025-02-23 09:38:17,260 [INFO] 生成图片描述成功: 这是一张地质剖面图，展示了不同类型的岩石和地质构造。图中包括了泥灰岩、石灰岩、泥页岩、砂岩以及侵入岩体等不同类型的岩石。图例中标注了这些岩石的符号。
+
+1. ①区域显示的是沉积岩层，包括泥灰岩、石灰岩和泥页岩。
+2. ②区域显示的是砂岩层，位于沉积岩层之下。
+3. ③区域显示的是侵入岩体，从地表下方向上延伸，穿过砂岩层。
+4. ④区域显示的是沉积岩层，位于侵入岩体之上。
+
+此外，图中还展示了地壳的褶皱和断层构造，表明该地区经历了地壳运动的影响。
+2025-02-23 09:38:17,260 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image6.png
+2025-02-23 09:38:46,193 [INFO] 生成图片描述成功: 这是一张北京市某区域的地图，图中标注了多个地名和地铁线路。地图上显示了以下内容：
+
+1. 地铁线路：图中有两条地铁线路，分别是10号线和5号线。
+2. 主要地标：包括方庄、芳星园、四方景园、成寿寺社区、刘家窑、宋家庄等。
+3. 快餐门店位置：地图左下角有一个标记，表示某快餐门店的位置。
+
+地图的右上角有“弘善家园”字样，左上角有“景泰”字样，中间部分有“南三环”字样，下方有“成寿寺路”字样。地图整体显示了一个城市区域的布局和交通情况。
+2025-02-23 09:38:46,193 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image7.png
+2025-02-23 09:39:01,625 [INFO] 生成图片描述成功: 这是一张柱状图，展示了三个城市（巴黎、上海和广州）在1990年、2000年和2014年的城市人口密度（人/公顷）。图表的横轴表示城市人口密度，单位为每公顷的人口数；纵轴表示不同的城市。每个城市的柱状图由三部分组成，分别代表1990年、2000年和2014年的数据。
+
+从图中可以看出：
+- 广州的城市人口密度最高，其次是上海，最低的是巴黎。
+- 三个城市的人口密度都有所增加，但增长幅度不同。广州的增长最为显著，其次是上海，巴黎的增长相对较小。
+- 从1990年到2014年，广州的人口密度增加了约150人/公顷，上海增加了约30人/公顷，而巴黎则增加了约10人/公顷。
+2025-02-23 09:39:01,625 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image8.png
+2025-02-23 09:39:13,893 [INFO] 生成图片描述成功: 这张图片展示了一个水库的示意图。图中显示了水库的最高蓄水位为175米，最低蓄水位为145米。水库的边界用虚线表示，水库内部有几条河流或沟渠。在水库的两侧，标注了“消落带”和“消落区”，这通常指的是水库水位变化时淹没和露出的土地区域。图中还标出了水库的形状和大小，以及一些地形特征。
+2025-02-23 09:39:13,893 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image9.png
+2025-02-23 09:39:32,200 [INFO] 生成图片描述成功: 这是一张卫星图像，显示了一个位于38°16'N和72°54'E经纬度区域的地形图。图像中可以看到一个湖泊，周围是山脉和一些低洼地区。湖泊的形状不规则，湖水较深，周围有一些白色的点状结构，可能是建筑物或人类活动的痕迹。图像的右上角标注了经纬度坐标，左下角也有经纬度坐标。整体来看，这个区域的地貌特征较为复杂，既有湖泊又有山脉。
+2025-02-23 09:39:32,201 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image10.png
+2025-02-23 09:39:32,225 [ERROR] 无法打开图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image10.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:39:32,227 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image11.png
+2025-02-23 09:39:43,393 [INFO] 生成图片描述成功: 这是一张柱状图，图的横轴表示样本号，从1到25；纵轴表示土壤厚度（cm），范围从0到45。图中有两种颜色的柱子，黑色代表阴坡，白色代表阳坡。每个样本号对应的柱子高度表示该样本在阴坡和阳坡上的土壤厚度。例如，样本号为1时，阴坡的土壤厚度约为9cm，而阳坡的土壤厚度约为6cm。随着样本号的增加，阴坡和阳坡的土壤厚度变化趋势有所不同。
+2025-02-23 09:39:43,393 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image12.png
+2025-02-23 09:40:00,762 [INFO] 生成图片描述成功: 这是一张图表，展示了土壤厚度与植被覆盖度和坡度之间的关系。图表中有两条线：虚线表示土壤厚度随植被覆盖度变化的趋势线，实线表示土壤厚度随坡度变化的趋势线。
+
+从图中可以看出：
+1. 随着植被覆盖度的增加，土壤厚度逐渐减小。
+2. 随着坡度的增加，土壤厚度也逐渐减小。
+
+具体来说：
+- 当植被覆盖度为0%时，土壤厚度约为30cm；当植被覆盖度达到100%时，土壤厚度约为5cm。
+- 当坡度为0°时，土壤厚度约为30cm；当坡度达到60°时，土壤厚度约为5cm。
+
+这两条趋势线表明，无论是植被覆盖度还是坡度的变化，都会对土壤厚度产生影响，且这种影响是负相关的，即植被覆盖度越高或坡度越大，土壤厚度越薄。
+2025-02-23 09:40:00,762 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image13.png
+2025-02-23 09:40:09,972 [INFO] 生成图片描述成功: 这是一张中国地图的部分区域图，显示了安徽省和浙江省的一部分。图中标注了新安江流域和练江流域的范围。地图上还标注了几个城市的位置，包括休宁、歙县和淳安县等。地图右下角有一个图例，说明了地图中不同符号的含义：黑色圆点代表城市，波浪线代表河流，虚线表示省界线。
+2025-02-23 09:40:09,973 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image14.png
+2025-02-23 09:40:23,516 [INFO] 生成图片描述成功: 这是一张柱状图，显示了某地在2019年6月1日至7月5日期间的日降水量（单位：毫米）。横轴表示日期，纵轴表示日降水量。从图中可以看出，在这段时间内，降水量波动较大，有几次明显的降水高峰期。例如，6月3日、6月19日和7月4日的降水量较高，分别达到了约60毫米、40毫米和80毫米。而6月13日、6月15日和6月29日的降水量较低，几乎为零。总体来看，该地区在这段时间内的降水量变化较为频繁，且存在明显的季节性特征。
+2025-02-23 09:40:23,516 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image15.png
+2025-02-23 09:40:23,517 [ERROR] 无法打开图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image15.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:40:23,517 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image16.png
+2025-02-23 09:40:41,688 [INFO] 生成图片描述成功: 这是一张柱状图，展示了不同类别产品的占比情况。横轴表示占比（%），纵轴表示不同的产品类别。每个类别都有一个对应的黑色柱状图，表示该类别的占比大小。
+
+从左到右，各个类别的产品及其占比如下：
+1. 矿产品：占比非常小，几乎可以忽略不计。
+2. 纤维素浆、纸张：占比也很小。
+3. 运输设备：占比相对较大。
+4. 塑料、橡胶：占比也较大。
+5. 贱金属及制品：占比较大。
+6. 纺织品及原料：占比较大。
+7. 机电产品：占比最大，接近50%。
+
+总体来看，机电产品在所有类别中占比最高，其次是纺织品及原料和贱金属及制品，塑料、橡胶和运输设备的占比也相对较高，而矿产品、纤维素浆、纸张的占比则非常低。
+2025-02-23 09:40:41,689 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image17.png
+2025-02-23 09:41:01,107 [INFO] 生成图片描述成功: 这是一张地下建筑的平面图，展示了不同层次的结构和布局。图中显示了四个主要的建筑区域，分别是卡西姆大厅、圣安东尼教堂、哥白尼厅和圣约翰教堂。每个建筑区域都有其特定的位置和深度。
+
+- 卡西姆大厅位于第一层，深度约为64米。
+- 圣安东尼教堂位于第二层（上），深度约为90米。
+- 哥白尼厅也位于第二层（上），但位置在圣安东尼教堂的右侧。
+- 圣金加教堂位于第二层（下），深度约为110米。
+- 夹层位于第二层（下）和第三层之间，深度约为125米。
+- 圣约翰教堂位于第三层，深度约为135米。
+
+此外，图中还标示了升降机井和通风井的位置。整个建筑群通过各种通道连接在一起，形成了一个复杂的地下网络。
+2025-02-23 09:41:01,107 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image18.png
+2025-02-23 09:41:16,511 [INFO] 生成图片描述成功: 这是一张地图，显示了中国辽宁省丹东市及其周边地区的地理信息。地图上标注了城市、河流、铁路、港口和省界线等信息。具体来说：
+
+1. **城市**：地图中标注了丹东市、凤城市等城市。
+2. **河流**：有鸭绿江穿过地图区域。
+3. **铁路**：有多条铁路线穿过地图区域，连接不同的城市和地区。
+4. **港口**：地图上有鸭绿江口的港口标记。
+5. **省界线**：地图上标出了辽宁省与朝鲜的边界线。
+
+此外，地图右下角有一个图例，解释了地图中不同符号的含义。地图左上角有一个小地图，显示了整个辽宁省的位置。
+2025-02-23 09:41:16,511 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image19.png
+2025-02-23 09:41:16,512 [ERROR] 无法打开图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image19.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:41:16,513 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image20.png
+2025-02-23 09:41:31,469 [INFO] 生成图片描述成功: 这是一张流程图，展示了从生态肥料到最终产品加工的全过程。具体步骤如下：
+
+1. 废水废渣通过智能缫丝处理后产生蚕丝。
+2. 蚕丝用于服饰加工。
+3. 蚕蛹可以制作成保健产品。
+4. 放养柞蚕后得到柞蚕茧。
+5. 柞蚕茧经过缫丝处理后得到蚕丝。
+6. 蚕丝用于服饰加工。
+7. 柞蚕茧还可以用来制作保健产品。
+8. 抚育柞树种植灌草，为放养柞蚕提供饲料和栖息地。
+
+整个流程图展示了生态肥料的循环利用以及柞蚕养殖、缫丝、蚕丝加工和蚕蛹加工的产业链条。
+2025-02-23 09:41:31,469 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image21.png
+2025-02-23 09:42:03,950 [INFO] 生成图片描述成功: 这是一张秘鲁的地形图，图中标注了几个城市和遗址。图中显示了秘鲁的地理特征，包括山脉、河流和海岸线。图例中标注了陆高（米）的范围，从0到5000米不等，颜色越深表示海拔越高。图中还标注了伊基托斯、利马等城市的位置，以及马丘比丘遗址的地理位置。右上角的图片展示了马丘比丘遗址的景观，这是一个著名的考古遗址，位于秘鲁安第斯山脉的山坡上。
+2025-02-23 09:42:03,950 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image22.png
+2025-02-23 09:42:03,950 [ERROR] 无法打开图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image22.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:42:03,951 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image23.png
+2025-02-23 09:42:03,951 [ERROR] 无法打开图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image23.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:42:03,951 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image24.png
+2025-02-23 09:42:03,952 [ERROR] 无法打开图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image24.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:42:03,952 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image25.png
+2025-02-23 09:42:03,952 [ERROR] 无法打开图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image25.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:42:03,952 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image26.png
+2025-02-23 09:42:21,396 [INFO] 生成图片描述成功: 这是一张柱状图，展示了不同类别产品的占比情况。横轴表示占比（%），纵轴表示不同的产品类别。每个类别都有一个对应的黑色条形图，条形图的高度代表该类别的占比大小。
+
+从上到下，各个类别的产品及其占比如下：
+1. 矿产品：占比非常小，几乎可以忽略不计。
+2. 纤维素浆、纸张：占比也很小。
+3. 运输设备：占比相对较大。
+4. 塑料、橡胶：占比也较大。
+5. 化工产品：占比较大。
+6. 贱金属及制品：占比较大。
+7. 纺织品及原料：占比较大。
+8. 家具、玩具、杂项：占比较大。
+9. 机电产品：占比最大，接近50%。
+
+总体来看，机电产品在所有类别中占比最高，其次是家具、玩具、杂项等类别。
+2025-02-23 09:42:21,396 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image27.png
+2025-02-23 09:42:38,109 [INFO] 生成图片描述成功: 这是一张柱状图，展示了不同类别产品的占比情况。横轴表示占比（%），纵轴表示不同的产品类别。每个类别都有一个对应的黑色柱状图，柱状图的高度代表该类别的占比大小。
+
+从上到下，各个类别的产品及其占比如下：
+1. 矿产品：占比约为5%
+2. 纤维素素、纸张：占比约为10%
+3. 运输设备：占比约为15%
+4. 塑料、橡胶：占比约为20%
+5. 化工产品：占比约为25%
+6. 贱金属及制品：占比约为30%
+7. 纺织品及原料：占比约为35%
+8. 家具、玩具、杂项：占比约为40%
+9. 机电产品：占比约为50%
+
+从图表中可以看出，机电产品占比最高，达到50%，其次是家具、玩具、杂项，占比为40%。其他类别的产品占比相对较低。
+2025-02-23 09:42:38,109 [INFO] 正在处理图片: extracted_images/地理/2021北京东城高三一模地理（教师版）/image28.png
+2025-02-23 09:42:38,109 [ERROR] 无法打开图片 extracted_images/地理/2021北京东城高三一模地理（教师版）/image28.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:42:38,111 [INFO] 文本分块完成，共分 12 块
+2025-02-23 09:42:38,111 [INFO] 提取 chunk 与图片关系完成
+2025-02-23 09:42:38,111 [INFO] 关系信息已保存到 relationships.json
+2025-02-23 09:42:38,111 [INFO] 保存 chunk 1 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_1.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 2 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_2.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 3 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_3.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 4 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_4.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 5 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_5.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 6 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_6.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 7 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_7.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 8 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_8.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 9 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_9.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 10 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_10.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 11 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_11.txt
+2025-02-23 09:42:38,112 [INFO] 保存 chunk 12 到 chunks_texts/地理/2021北京东城高三一模地理（教师版）/chunk_12.txt
+2025-02-23 09:42:38,122 [INFO] 加载 embedding 模型: /nvme0/models/BAAI/bge-large-zh-v1.5
+2025-02-23 09:42:38,288 [INFO] Embedding 模型加载成功，使用设备: cpu
+2025-02-23 09:42:38,552 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:39,248 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:39,487 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:39,871 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:40,116 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:40,353 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:40,716 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:41,106 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:41,582 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:42,112 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:42,586 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:42,952 [INFO] Chunk embedding 计算完成
+2025-02-23 09:42:42,963 [INFO] Embedding结果已保存到 embedding/地理/2021北京东城高三一模地理（教师版）.emb
+2025-02-23 09:42:42,963 [INFO] 处理文件 files/地理/2021北京东城高三一模地理（教师版）.docx 完成
+2025-02-23 09:42:43,788 [INFO] 开始处理文件: files/地理/2021北京朝阳高三一模地理（教师版）.docx
+2025-02-23 09:42:43,789 [INFO] 加载图像描述模型: /nvme0/models/Qwen/Qwen2.5-VL-7B-Instruct/
+2025-02-23 09:42:45,860 [INFO] 模型加载成功，使用设备: cpu
+2025-02-23 09:42:45,873 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image1.png
+2025-02-23 09:42:45,876 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image2.png
+2025-02-23 09:42:45,878 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image3.png
+2025-02-23 09:42:45,879 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image4.png
+2025-02-23 09:42:45,879 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image5.png
+2025-02-23 09:42:45,881 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image6.png
+2025-02-23 09:42:45,882 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image7.png
+2025-02-23 09:42:45,884 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image8.png
+2025-02-23 09:42:45,886 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image9.png
+2025-02-23 09:42:45,886 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image10.png
+2025-02-23 09:42:45,887 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image11.png
+2025-02-23 09:42:45,887 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image12.png
+2025-02-23 09:42:45,890 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image13.png
+2025-02-23 09:42:45,891 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image14.png
+2025-02-23 09:42:45,892 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image15.png
+2025-02-23 09:42:45,893 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image16.png
+2025-02-23 09:42:45,894 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image17.png
+2025-02-23 09:42:45,895 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image18.png
+2025-02-23 09:42:45,895 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image19.png
+2025-02-23 09:42:45,896 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image20.png
+2025-02-23 09:42:45,913 [INFO] 提取图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image21.png
+2025-02-23 09:42:45,930 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image1.png
+2025-02-23 09:42:48,770 [INFO] 生成图片描述成功: 这张图片显示了一个数学问题，题目是“一个数除以4等于12”，要求解这个数。
+2025-02-23 09:42:48,770 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image2.png
+2025-02-23 09:43:01,033 [INFO] 生成图片描述成功: 这是一张航空飞行轨迹图，显示了一架由中国国航执飞的航班（CA4173）从昆明长水机场飞往北京首都机场的飞行信息。图中显示了航班的高度为9491米，剩余飞行距离为969.4公里，当前速度为849.64公里/小时，预计剩余飞行时间为1小时27分钟。航班的当前位置坐标为北纬34.01度，东经108.13度。地图上还标注了其他一些城市的位置，如成都、重庆、武汉等。
+2025-02-23 09:43:01,033 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image3.png
+2025-02-23 09:43:13,858 [INFO] 生成图片描述成功: 这是一张京哈高铁线路图，展示了从北京到哈尔滨的高铁线路。图中标注了线路的全长为1198公里，设计时速为350公里。图中还标注了几个关键站点，包括北京朝阳站、承德南站、沈阳站、长春站、哈尔滨西站等。此外，图中还显示了不同路段的开通时间：沈阳至哈尔滨段于2012年12月1日开通运营；沈阳至承德段于2018年12月29日开通运营；北京至承德段于2021年1月22日开通运营。
+2025-02-23 09:43:13,858 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image4.png
+2025-02-23 09:43:27,530 [INFO] 生成图片描述成功: 这是一张北京市中心及周边地区的地图。图中标注了多个地标和交通枢纽，包括北京站、北京西站、北京南站、北京朝阳站等主要火车站，以及一些公园如圆明园、北京奥林匹克公园、太阳宫公园、朝阳公园等。此外，图中还标示了多个桥梁，如四元桥、三元桥、五元桥等。地图上还标注了东城区、朝阳区、海淀区、丰台区等行政区划。地图的左下角显示了丰台区的部分区域，右上角则显示了朝阳区的部分区域。地图整体布局清晰，便于查找位置。
+2025-02-23 09:43:27,530 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image5.png
+2025-02-23 09:43:27,530 [ERROR] 无法打开图片 extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image5.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:43:27,531 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image6.png
+2025-02-23 09:43:27,531 [ERROR] 无法打开图片 extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image6.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:43:27,531 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image7.png
+2025-02-23 09:45:16,053 [INFO] 生成图片描述成功: 这是一张中国及其周边地区的等压线图。图中显示了不同区域的气压值，单位为百帕（hPa）。通过等压线的分布和弯曲程度，可以分析出各地的气压状况和天气系统的位置。
+
+1. **高压系统**：
+   - 在图的西北部地区，有一个明显的高压中心，气压值在1080 hPa左右。
+   - 另一个高压中心位于图的东北部，气压值约为1025 hPa。
+
+2. **低压系统**：
+   - 在图的中部偏南地区，有一个低压中心，气压值约为1015 hPa。
+   - 在图的东南部沿海地区，也有一个低压中心，气压值约为1015 hPa。
+
+3. **气流方向**：
+   - 从高压中心向外辐射的等压线表明，气流是从高压中心向外扩散的。
+   - 从低压中心向外辐射的等压线表明，气流是从低压中心向外辐合的。
+
+4. **天气特征**：
+   - 高压中心通常与晴朗干燥的天气相关联。
+   - 低压中心通常与阴雨
+2025-02-23 09:45:16,053 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image8.png
+2025-02-23 09:45:26,975 [INFO] 生成图片描述成功: 这是一张地理坐标图，图中显示了几个城市的经纬度位置。图的左侧是纬度（N），从0°到90°；图的底部是经度（E），从180°到180°。图中标注了洛杉矶、奥兰多、北京、大阪和新加坡的位置。洛杉矶位于大约34°N，98°W；奥兰多位于大约28°N，81°W；北京位于大约40°N，116°E；大阪位于大约35°N，135°E；新加坡位于大约1°N，103°E。
+2025-02-23 09:45:26,975 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image9.png
+2025-02-23 09:45:35,393 [INFO] 生成图片描述成功: 这是一张地图，显示了中国重庆市及其周边区域的地理分布。图中可以看到重庆市位于地图的中心位置，并且标注了“主城区域”字样，表示这是重庆市的城市核心区域。地图上还标注了其他几个区域名称，如“渝东北”、“渝东南”和“巫山县”，这些区域分别位于重庆市的不同方向。地图上还标有经纬度坐标，可以更准确地定位各个地点。
+2025-02-23 09:45:35,393 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image10.png
+2025-02-23 09:45:48,642 [INFO] 生成图片描述成功: 这是一张地图，显示了重庆的某些区域及其周边的道路和隧道。图中标注了多个隧道和道路名称，包括但不限于：
+
+- 机场高速
+- 北碚隧道
+- 蔡家隧道
+- 歌乐山隧道
+- 士主遂道
+- 井口隧道
+- 双碑隧道
+- 大学城复线
+- 大学城隧道
+- 中梁山隧道
+- 白石桥隧道
+- 华岩隧道
+
+此外，地图上还标示了一些交叉口和主要道路，如大学城立交、双碑立交等。地图的右下角标注了“重庆内环快速”和“快速路二纵线”。地图的左上角有“重庆绕城高速”的标注。
+2025-02-23 09:45:48,642 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image11.png
+2025-02-23 09:46:00,453 [INFO] 生成图片描述成功: 这是一张地形图，图中显示了某地区的地形特征。图中有等高线、河流和一些地名标注。等高线以500米为间隔绘制，表示不同的海拔高度。图中可以看到几条河流的走向，以及一些山峰和谷地的位置。图例中标注了等高线和河流的符号。地图上还有一些地名，如“庙坪垭”、“下庄村”、“柿子树”、“胡家坡”等。地图的比例尺为1:100000，表示每厘米代表实际距离1千米。
+2025-02-23 09:46:00,453 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image12.png
+2025-02-23 09:46:00,453 [ERROR] 无法打开图片 extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image12.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:46:00,454 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image13.png
+2025-02-23 09:46:16,041 [INFO] 生成图片描述成功: 这是一张关于鸟类迁徙路线的示意图。图中显示了不同地区的鸟类迁徙路径和时间。具体如下：
+
+1. **贝加尔湖区域**：这是鸟类的繁殖地，鸟类在6月左右到达。
+2. **乌布苏湖区域**：这也是繁殖地，鸟类同样在6月左右到达。
+3. **新疆博斯腾湖**：鸟类在5月下旬左右到达，并沿着西路进入新疆。
+4. **宁夏银川**：鸟类从4月初到约停留一个月。
+5. **四川若尔盖湿地**：鸟类在3月下旬左右到达，停留约3周。
+6. **云南昆明**：这是鸟类的越冬地，鸟类在3月上旬左右向北迁徙，10月下旬陆续返回昆明。
+
+图中还有一只飞翔的海鸥和一只站在树枝上的鸟，形象地展示了鸟类的迁徙过程。
+2025-02-23 09:46:16,042 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image14.png
+2025-02-23 09:46:16,042 [ERROR] 无法打开图片 extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image14.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:46:16,042 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image15.png
+2025-02-23 09:46:23,419 [INFO] 生成图片描述成功: 这是一张地图，显示了北京和张家口赛区的地理位置。地图上标注了多个地点，包括张家口、宣化、下花园、沙城、延庆、八达岭、昌平、沙河、清河以及北京赛区。地图上还标示了河北省的边界，并且有一条虚线表示省界。地图上还标注了“河北”和“北京”的字样，表明这是两个不同的省份。
+2025-02-23 09:46:23,420 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image16.png
+2025-02-23 09:46:33,294 [INFO] 生成图片描述成功: 这张图片展示了两个部分的内容：
+
+1. 左侧的地图显示了一个地理区域，标注了几个城市名称，包括上海、杭州和嘉兴。地图上有经纬度坐标，表明了这些城市的地理位置。
+
+2. 右侧的图是一个更详细的区域图，标注了嘉兴市及其周边的一些城镇，如海盐县、海宁市、桐乡市等。图中还标示了高速公路的位置，显示了该地区的交通网络布局。
+
+整体来看，这张图片可能是在介绍一个特定区域的地理位置和交通情况。
+2025-02-23 09:46:33,294 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image17.png
+2025-02-23 09:46:33,295 [ERROR] 无法打开图片 extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image17.png: cannot find loader for this WMF file
+Traceback (most recent call last):
+  File "/home/xtang/exam_rag/preprocess_geo.py", line 59, in chinese_image_caption_inference
+    image = Image.open(image_path).convert("RGB")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/Image.py", line 984, in convert
+    self.load()
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/WmfImagePlugin.py", line 166, in load
+    return super().load()
+           ^^^^^^^^^^^^^^
+  File "/root/miniforge3/lib/python3.12/site-packages/PIL/ImageFile.py", line 384, in load
+    raise OSError(msg)
+OSError: cannot find loader for this WMF file
+2025-02-23 09:46:33,295 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image18.png
+2025-02-23 09:46:50,505 [INFO] 生成图片描述成功: 这是一张关于海岸线变化的地图。地图上标注了不同时间段的海岸线变化情况，具体如下：
+
+- 灰色区域表示1978年到1988年间海岸线的变化。
+- 深灰色区域表示1988年到1992年间海岸线的变化。
+- 浅灰色区域表示1992年到1995年间海岸线的变化。
+- 蓝色区域表示1995年到1999年间海岸线的变化。
+- 黑色区域表示1999年到2003年间海岸线的变化。
+- 浅蓝色区域表示2003年到2009年间海岸线的变化。
+
+地图中间部分有“陆域”和“海域”的标注，左侧有一个小铲岛，右侧有一个大铲湾，最右侧有一个蛇口。地图底部有一条黑色实线，表示1977年的海岸线。
+2025-02-23 09:46:50,505 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image19.png
+2025-02-23 09:46:57,365 [INFO] 生成图片描述成功: 这是一张深圳市及其周边地区的地图。图中标注了深圳市的各个行政区，包括宝安区、龙岗区、盐田区、罗湖区、福田区、南山区和前海合作区。此外，地图上还标注了深圳市的机场位置以及与深圳市相邻的城市东莞市和惠州市。地图下方还标注了香港特别行政区的位置。
+2025-02-23 09:46:57,365 [INFO] 正在处理图片: extracted_images/地理/2021北京朝阳高三一模地理（教师版）/image20.png

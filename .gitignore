@@ -3,3 +3,5 @@ docx/
 files/
 chunks_texts/
 embedding/
+logs/
+*.logs

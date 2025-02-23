@@ -5,6 +5,7 @@
     "relationships_output_file": "relationships.json",
     "embedding_output_dir": "embedding/",
     "vl_model_path": "/nvme0/models/Qwen/Qwen2.5-VL-7B-Instruct/",
-    "embedding_model_path": "/nvme0/models/BAAI/bge-large-zh-v1.5"
-  }
+    "embedding_model_path": "/nvme0/models/BAAI/bge-large-zh-v1.5",
+    "log_level": "INFO"
+}
   

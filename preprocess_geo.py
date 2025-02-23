@@ -1,10 +1,8 @@
-import docx2txt
 import os
 import re
-import docx
 import json
-
-# --- 为图像描述模型做准备 ---
+import logging
+import docx
 import torch
 from PIL import Image, UnidentifiedImageError
 from transformers import (
@@ -13,156 +11,158 @@ from transformers import (
 )
 from qwen_vl_utils import process_vision_info
 
+# --- 先加载配置 ---
+try:
+    with open("config.json", "r", encoding="utf-8") as f:
+        config = json.load(f)
+except Exception as e:
+    print("加载配置文件出错:", e)
+    raise
+
+# 从 config 中读取日志级别，默认为 INFO
+log_level_str = config.get("log_level", "INFO").upper()
+log_level = getattr(logging, log_level_str, logging.INFO)
+logging.basicConfig(
+    level=log_level,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("logs/geo_processing.log", mode="a", encoding="utf-8"),
+        logging.StreamHandler()
+    ]
+)
+logging.info("日志配置成功，日志级别：%s", log_level_str)
 
 ##############################################
 # 1) 加载图像描述模型 (Qwen2.5-VL-7B-Instruct)
 ##############################################
 
 def load_chinese_image_captioning_model(model_name):
-    """
-    加载一个中文多模态模型 Qwen2.5-VL-7B-Instruct, 用于看图说话。
-    返回 (processor, model, device)。
-    """
-    processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        model_name,
-        device_map="auto",
-        torch_dtype=torch.float16,
-        trust_remote_code=True
-    )
-    model.eval()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    return processor, model, device
+    try:
+        logging.info("加载图像描述模型: %s", model_name)
+        processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
+        model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+            model_name,
+            device_map="auto",
+            torch_dtype=torch.float16,
+            trust_remote_code=True
+        )
+        model.eval()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        logging.info("模型加载成功，使用设备: %s", device)
+        return processor, model, device
+    except Exception as e:
+        logging.error("加载图像描述模型时发生错误: %s", e, exc_info=True)
+        raise
 
-
-def chinese_image_caption_inference(
-    image_path, processor, model, device,
-    prompt="请用中文描述这张图片"
-):
-    """
-    给定单张图片的本地路径, 使用 Qwen2.5-VL-7B-Instruct 生成中文图像描述。
-    内部使用官方的 apply_chat_template / process_vision_info。
-    """
+def chinese_image_caption_inference(image_path, processor, model, device, prompt="请用中文描述这张图片"):
     try:
         image = Image.open(image_path).convert("RGB")
-    except (OSError, UnidentifiedImageError):
+    except (OSError, UnidentifiedImageError) as e:
+        logging.error("无法打开图片 %s: %s", image_path, e, exc_info=True)
         return "[无法识别的图片格式]"
-    
+
     w, h = image.size
     if w < 28 or h < 28:
+        logging.warning("图片 %s 太小 (%dx%d)，无法处理", image_path, w, h)
         return "[图片太小，无法处理]"
 
-    messages = [
-        {
-            "role": "user",
-            "content": [
-                {"type": "image", "image": image_path},
-                {"type": "text", "text": prompt},
-            ],
-        }
-    ]
+    messages = [{
+        "role": "user",
+        "content": [
+            {"type": "image", "image": image_path},
+            {"type": "text", "text": prompt},
+        ],
+    }]
 
-    text = processor.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
-    )
-    image_inputs, video_inputs = process_vision_info(messages)
-    inputs = processor(
-        text=[text],
-        images=image_inputs,
-        videos=video_inputs,
-        padding=True,
-        return_tensors="pt"
-    ).to(device)
-
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=256,
-            do_sample=True,
-            temperature=0.7
-        )
-
-    generated_ids_trimmed = []
-    for in_ids, out_ids in zip(inputs.input_ids, outputs):
-        generated_ids_trimmed.append(out_ids[len(in_ids):])
-    
-    caption = processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True)
-    return caption[0].strip() if caption else ""
-
+    try:
+        text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        image_inputs, video_inputs = process_vision_info(messages)
+        inputs = processor(text=[text], images=image_inputs, videos=video_inputs, padding=True, return_tensors="pt").to(device)
+        with torch.no_grad():
+            outputs = model.generate(**inputs, max_new_tokens=256, do_sample=True, temperature=0.7)
+        generated_ids_trimmed = []
+        for in_ids, out_ids in zip(inputs.input_ids, outputs):
+            generated_ids_trimmed.append(out_ids[len(in_ids):])
+        caption = processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True)
+        result = caption[0].strip() if caption else ""
+        logging.info("生成图片描述成功: %s", result)
+        return result
+    except Exception as e:
+        logging.error("生成图片描述失败: %s", e, exc_info=True)
+        return "[描述生成失败]"
 
 ##############################################
 # 2) 从 docx 提取文本 & 图片
 ##############################################
 
 def extract_text_and_images_from_docx(docx_file, base_image_dir):
-    """
-    使用 python-docx 从 docx 中读取所有段落,
-    当段落里遇到行内图片时, 导出图片并在文本中插入 [imageX.png] 占位符。
-    修改点：在 base_image_dir 下为每个文件创建子目录保存图片。
-    """
-    base = os.path.splitext(os.path.basename(docx_file))[0]
-    image_dir = os.path.join(base_image_dir, base)
-    if not os.path.exists(image_dir):
-        os.makedirs(image_dir)
+    try:
+        base = os.path.splitext(os.path.basename(docx_file))[0]
+        image_dir = os.path.join(base_image_dir, base)
+        if not os.path.exists(image_dir):
+            os.makedirs(image_dir)
+            logging.info("创建图片保存目录: %s", image_dir)
 
-    doc_object = docx.Document(docx_file)
-    image_counter = 0
-    final_lines = []
+        doc_object = docx.Document(docx_file)
+        image_counter = 0
+        final_lines = []
 
-    for paragraph in doc_object.paragraphs:
-        paragraph_chunks = []
-        for run in paragraph.runs:
-            drawing_el = run._element.xpath('.//*[local-name()="drawing"]')
-            if drawing_el:
-                blip_elems = run._element.xpath('.//*[local-name()="blip"]')
-                if blip_elems:
-                    blip = blip_elems[0]
-                    rid = blip.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
-                    if rid:
-                        image_counter += 1
-                        part = doc_object.part.related_parts[rid]
-                        image_filename = f"image{image_counter}.png"
-                        out_path = os.path.join(image_dir, image_filename)
-                        with open(out_path, "wb") as f:
-                            f.write(part._blob)
-                        paragraph_chunks.append(f"[{image_filename}]")
+        for paragraph in doc_object.paragraphs:
+            paragraph_chunks = []
+            for run in paragraph.runs:
+                drawing_el = run._element.xpath('.//*[local-name()="drawing"]')
+                if drawing_el:
+                    blip_elems = run._element.xpath('.//*[local-name()="blip"]')
+                    if blip_elems:
+                        blip = blip_elems[0]
+                        rid = blip.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
+                        if rid:
+                            image_counter += 1
+                            part = doc_object.part.related_parts[rid]
+                            image_filename = f"image{image_counter}.png"
+                            out_path = os.path.join(image_dir, image_filename)
+                            with open(out_path, "wb") as f:
+                                f.write(part._blob)
+                            logging.info("提取图片: %s", out_path)
+                            paragraph_chunks.append(f"[{image_filename}]")
+                        else:
+                            paragraph_chunks.append("[image_no_rid]")
                     else:
-                        paragraph_chunks.append("[image_no_rid]")
+                        paragraph_chunks.append("[image_no_blip]")
                 else:
-                    paragraph_chunks.append("[image_no_blip]")
-            else:
-                paragraph_chunks.append(run.text)
-        line_text = "".join(paragraph_chunks).strip()
-        if line_text:
-            final_lines.append(line_text)
-    return "\n".join(final_lines), image_dir
-
+                    paragraph_chunks.append(run.text)
+            line_text = "".join(paragraph_chunks).strip()
+            if line_text:
+                final_lines.append(line_text)
+        return "\n".join(final_lines), image_dir
+    except Exception as e:
+        logging.error("提取 docx 文本和图片时出错: %s", e, exc_info=True)
+        raise
 
 ##############################################
 # 3) 替换图片占位符, 调用千问-VL生成中文描述
 ##############################################
 
 def replace_image_placeholders_with_captions(text, image_dir, processor, model, device):
-    """
-    在给定 text 中查找形如 [imageX.png] 的占位符,
-    用 Qwen2.5-VL 生成中文描述, 并将占位符替换掉。
-    被替换的文字末尾会追加 "[/]"。
-    """
     pattern = re.compile(r'\[image(\d+)\.png\]', re.IGNORECASE)
 
     def _replace_func(match):
         image_number = match.group(1)
         image_filename = f"image{image_number}.png"
         image_path = os.path.join(image_dir, image_filename)
-        print(f"正在处理图片 {image_path} ...")
+        logging.info("正在处理图片: %s", image_path)
         if os.path.exists(image_path):
             caption = chinese_image_caption_inference(image_path, processor, model, device)
-            print("生成的中文描述: ", caption)
             return f"[{image_path}] {caption} [/]"
         else:
+            logging.warning("图片未找到: %s", image_path)
             return f"[图片 {image_filename} 未找到] [/]"
-    return pattern.sub(_replace_func, text)
-
+    try:
+        new_text = pattern.sub(_replace_func, text)
+        return new_text
+    except Exception as e:
+        logging.error("替换图片占位符时出错: %s", e, exc_info=True)
+        return text
 
 ##############################################
 # 4) 按关键词分块
@@ -208,27 +208,21 @@ def chunk_exam_geography(raw_text):
         cleaned = "\n".join(l.strip() for l in chunk_lines if l.strip())
         if cleaned:
             chunks.append(cleaned)
+    logging.info("文本分块完成，共分 %d 块", len(chunks))
     return chunks
-
 
 ##############################################
 # 5) 去除行首编号（可选）
 ##############################################
 
 def remove_line_numbering(text: str) -> str:
-    text_no_numbers = re.sub(r'\d+\.\s+', '', text)
-    return text_no_numbers
-
+    return re.sub(r'\d+\.\s+', '', text)
 
 ##############################################
 # 6) 提取 chunk 与图片的关系
 ##############################################
 
 def extract_chunk_relationships(chunks):
-    """
-    对于每个 chunk, 提取其中所有图片占位符 (例如 "[image1.png]")，
-    返回一个列表，每个元素为字典，记录 chunk 序号、chunk 文本和图片列表。
-    """
     relationships = []
     pattern = re.compile(r'\[(image\d+\.png)\]')
     for idx, chunk in enumerate(chunks, start=1):
@@ -238,189 +232,143 @@ def extract_chunk_relationships(chunks):
             "chunk_text": chunk,
             "images": images
         })
+    logging.info("提取 chunk 与图片关系完成")
     return relationships
 
-
 def save_relationships(docx_file, relationships, output_path):
-    """
-    保存文件名及其 chunk 与图片关系为 JSON 文件。
-    """
-    data = {
-        "docx_file": docx_file,
-        "chunks": relationships
-    }
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-
+    data = {"docx_file": docx_file, "chunks": relationships}
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        logging.info("关系信息已保存到 %s", output_path)
+    except Exception as e:
+        logging.error("保存关系信息时出错: %s", e, exc_info=True)
 
 def save_chunks_as_files(docx_file, chunks, base_output_dir):
-    """
-    将每个 chunk 单独保存为文本文件，
-    在 base_output_dir 下以 docx 文件的基本名称创建子目录，
-    文件名格式为: 原始文件名_chunk_{i}.txt
-    """
     base = os.path.splitext(os.path.basename(docx_file))[0]
     output_dir = os.path.join(base_output_dir, base)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+        logging.info("创建 chunks 输出目录: %s", output_dir)
     for idx, chunk in enumerate(chunks, start=1):
         filename = f"chunk_{idx}.txt"
         filepath = os.path.join(output_dir, filename)
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(chunk)
-
+        try:
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(chunk)
+            logging.info("保存 chunk %d 到 %s", idx, filepath)
+        except Exception as e:
+            logging.error("保存 chunk %d 时出错: %s", idx, e, exc_info=True)
 
 ##############################################
-# 7) 加载文本embedding模型，并对每个chunk做embedding
+# 7) 加载文本 embedding 模型，并对每个 chunk 做 embedding
 ##############################################
 
-def load_embedding_model(model_path="/nvme0/models/BAAI/bge-large-zh-v1.5"):
-    """
-    加载 BGE-large-zh-v1.5 的文本embedding模型。
-    返回 (embed_tokenizer, embed_model, embed_device)。
-    """
-    from transformers import AutoModel, AutoTokenizer
-    embed_tokenizer = AutoTokenizer.from_pretrained(model_path)
-    embed_model = AutoModel.from_pretrained(model_path)
-    embed_model.eval()
-    embed_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    embed_model.to(embed_device)
-    return embed_tokenizer, embed_model, embed_device
-
+def load_embedding_model(model_path):
+    try:
+        from transformers import AutoModel, AutoTokenizer
+        logging.info("加载 embedding 模型: %s", model_path)
+        embed_tokenizer = AutoTokenizer.from_pretrained(model_path)
+        embed_model = AutoModel.from_pretrained(model_path)
+        embed_model.eval()
+        embed_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        embed_model.to(embed_device)
+        logging.info("Embedding 模型加载成功，使用设备: %s", embed_device)
+        return embed_tokenizer, embed_model, embed_device
+    except Exception as e:
+        logging.error("加载 embedding 模型时出错: %s", e, exc_info=True)
+        raise
 
 def compute_chunk_embedding(chunk_text, embed_tokenizer, embed_model, embed_device, max_length=512, stride=256):
-    """
-    对给定 chunk_text 计算embedding。
-    使用 embed_tokenizer 编码, 然后用 embed_model 得到 embedding。
-    返回 embedding (列表形式)。
-    """
-    inputs = embed_tokenizer(chunk_text, return_tensors="pt", truncation=False)
-    inputs = inputs.to(embed_device)
-    input_ids = inputs["input_ids"][0]
+    try:
+        inputs = embed_tokenizer(chunk_text, return_tensors="pt", truncation=False)
+        inputs = inputs.to(embed_device)
+        input_ids = inputs["input_ids"][0]
+        embeddings = []
+        for start in range(0, len(input_ids), stride):
+            end = start + max_length
+            window_ids = input_ids[start:end]
+            window_inputs = {"input_ids": window_ids.unsqueeze(0)}
+            with torch.no_grad():
+                outputs = embed_model(**window_inputs)
+            if hasattr(outputs, "pooler_output") and outputs.pooler_output is not None:
+                window_emb = outputs.pooler_output
+            else:
+                window_emb = outputs.last_hidden_state.mean(dim=1)
+            embeddings.append(window_emb.squeeze(0))
+        final_embedding = torch.stack(embeddings, dim=0).mean(dim=0)
+        logging.info("Chunk embedding 计算完成")
+        return final_embedding.squeeze().cpu().tolist()
+    except Exception as e:
+        logging.error("计算 chunk embedding 时出错: %s", e, exc_info=True)
+        return []
 
-    embeddings = []
-    for start in range(0, len(input_ids), stride):
-        end = start + max_length
-        window_ids = input_ids[start:end]
-        window_inputs = {"input_ids": window_ids.unsqueeze(0)}
-        with torch.no_grad():
-            outputs = embed_model(**window_inputs)
-        # 这里使用 pooler_output 或 mean pooling
-        if hasattr(outputs, "pooler_output") and outputs.pooler_output is not None:
-            window_emb = outputs.pooler_output
-        else:
-            window_emb = outputs.last_hidden_state.mean(dim=1)
-        embeddings.append(window_emb.squeeze(0))
-    # 聚合各个窗口的embedding（例如取均值）
-    final_embedding = torch.stack(embeddings, dim=0).mean(dim=0)
-    return final_embedding.squeeze().cpu().tolist()
-    
-    # with torch.no_grad():
-    #     outputs = embed_model(**inputs)
-    # if hasattr(outputs, "pooler_output") and outputs.pooler_output is not None:
-    #     embedding = outputs.pooler_output
-    # else:
-    #     embedding = outputs.last_hidden_state.mean(dim=1)
-    # return embedding.squeeze().cpu().tolist()
-
-
-def save_embeddings(docx_file, embeddings, output_dir="embedding/"):
-    """
-    将每个 chunk 的embedding结果保存到文件：
-    文件路径: output_dir/<docx_basename>.emb
-    保存格式为 JSON, 每个键为 chunk_id, 值为 embedding (列表)。
-    """
+def save_embeddings(docx_file, embeddings, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+        logging.info("创建 embedding 输出目录: %s", output_dir)
     base = os.path.splitext(os.path.basename(docx_file))[0]
     emb_filepath = os.path.join(output_dir, f"{base}.emb")
-    with open(emb_filepath, "w", encoding="utf-8") as f:
-        json.dump(embeddings, f, ensure_ascii=False, indent=4)
-    print(f"Embedding结果已保存到 {emb_filepath}")
-
+    try:
+        with open(emb_filepath, "w", encoding="utf-8") as f:
+            json.dump(embeddings, f, ensure_ascii=False, indent=4)
+        logging.info("Embedding结果已保存到 %s", emb_filepath)
+    except Exception as e:
+        logging.error("保存 embedding 结果时出错: %s", e, exc_info=True)
 
 ##############################################
 # 主程序示例
 ##############################################
 
 def process_geo_test_paper(docx_file, config):
-    # docx_file = config["docx_file"]
-    base_image_dir = config["base_image_dir"] + "/地理/"
-    base_chunks_output_dir = config["base_chunks_output_dir"] + "/地理/"
-    relationships_output_file = config["relationships_output_file"]
-    embedding_output_dir = config["embedding_output_dir"] + "/地理/"
-    qwen_model_name = config["vl_model_path"]
-    embedding_model_path = config["embedding_model_path"]
+    try:
+        base_image_dir = os.path.join(config["base_image_dir"], "地理")
+        base_chunks_output_dir = os.path.join(config["base_chunks_output_dir"], "地理")
+        relationships_output_file = config["relationships_output_file"]
+        embedding_output_dir = os.path.join(config["embedding_output_dir"], "地理")
+        qwen_model_name = config["vl_model_path"]
+        embedding_model_path = config["embedding_model_path"]
+        logging.info("开始处理文件: %s", docx_file)
 
-    # 1) 加载 "千问2.5-VL" (中文多模态)
-    processor, model, device = load_chinese_image_captioning_model(
-        model_name=qwen_model_name
-    )
+        processor, model, device = load_chinese_image_captioning_model(qwen_model_name)
+        text_with_placeholders, file_image_dir = extract_text_and_images_from_docx(docx_file, base_image_dir)
+        logging.debug("提取到的文本(含占位符):\n%s", text_with_placeholders)
 
-    # 2) 提取文本 + 图片(插入占位符)
-    text_with_placeholders, file_image_dir = extract_text_and_images_from_docx(docx_file, base_image_dir)
-    print("===== 提取到的文本 (含占位符) =====")
-    print(text_with_placeholders)
+        text_with_captions = replace_image_placeholders_with_captions(text_with_placeholders, file_image_dir, processor, model, device)
+        text_with_captions = remove_line_numbering(text_with_captions)
+        logging.debug("替换后(带中文图片描述)的文本:\n%s", text_with_captions)
 
-    # 3) 替换占位符, 调用千问多模态生成中文描述
-    text_with_captions = replace_image_placeholders_with_captions(
-        text_with_placeholders,
-        file_image_dir,
-        processor, model, device
-    )
-    
-    # 可选：去除行首编号
-    text_with_captions = remove_line_numbering(text_with_captions)
-    print("\n===== 替换后（带中文图片描述）的文本 =====")
-    print(text_with_captions)
+        question_chunks = chunk_exam_geography(text_with_captions)
+        for i, chunk in enumerate(question_chunks, start=1):
+            logging.debug("第%d块内容:\n%s", i, chunk)
 
-    # 4) 按关键词分块
-    question_chunks = chunk_exam_geography(text_with_captions)
-    print("\n===== 分块结果 =====")
-    for i, chunk in enumerate(question_chunks, start=1):
-        print(f"\n--- 第{i}块 ---")
-        print(chunk)
+        relationships = extract_chunk_relationships(question_chunks)
+        save_relationships(docx_file, relationships, relationships_output_file)
+        save_chunks_as_files(docx_file, question_chunks, base_chunks_output_dir)
 
-    # 5) 提取 chunk 与图片的关系
-    relationships = extract_chunk_relationships(question_chunks)
+        embed_tokenizer, embed_model, embed_device = load_embedding_model(embedding_model_path)
+        embeddings = {}
+        for idx, chunk in enumerate(question_chunks, start=1):
+            emb = compute_chunk_embedding(chunk, embed_tokenizer, embed_model, embed_device)
+            embeddings[idx] = emb
+        save_embeddings(docx_file, embeddings, output_dir=embedding_output_dir)
+        logging.info("处理文件 %s 完成", docx_file)
+    except Exception as e:
+        logging.error("处理文件 %s 时出现未捕获错误: %s", docx_file, e, exc_info=True)
 
-    # 6) 保存关系信息为 JSON 文件
-    save_relationships(docx_file, relationships, relationships_output_file)
-    print(f"\n关系信息已保存到 {relationships_output_file}")
-
-    # 7) 将每个 chunk 单独保存为文本文件（在 chunks_texts/ 下创建子目录）
-    save_chunks_as_files(docx_file, question_chunks, base_chunks_output_dir)
-    print(f"每个 chunk 的文本已保存到目录 {base_chunks_output_dir}")
-
-    # 8) 加载 embedding 模型 (BGE-large-zh-v1.5)
-    embed_tokenizer, embed_model, embed_device = load_embedding_model(model_path=embedding_model_path)
-
-    # 9) 对每个 chunk 计算 embedding
-    embeddings = {}
-    for idx, chunk in enumerate(question_chunks, start=1):
-        emb = compute_chunk_embedding(chunk, embed_tokenizer, embed_model, embed_device)
-        embeddings[idx] = emb
-
-    # 10) 保存 embedding 结果到 embedding/<docx_basename>.emb 文件中
-    save_embeddings(docx_file, embeddings, output_dir=embedding_output_dir)
-    print(f"\nEmbedding结果已保存到目录 {embedding_output_dir}")
-
-def process_geo_files(config_path):
-    # 从配置文件中读取所有路径和模型名称参数
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = json.load(f)
-    
-    # 从配置中读取上传文件的基础路径，例如 "upload_file_path": "data"
-    upload_file_path = config["upload_file_path"]
-    # 构造 "地理" 子目录路径
-    geo_dir = os.path.join(upload_file_path, "地理")
-    
-    # 遍历 geo_dir 下所有文件，如果文件扩展名是 .docx，则调用 process_geo_test_paper
-    for filename in os.listdir(geo_dir):
-        if filename.lower().endswith(".docx"):
-            docx_file_path = os.path.join(geo_dir, filename)
-            print(f"\n正在处理文件: {docx_file_path}")
-            process_geo_test_paper(docx_file_path, config)
+def process_geo_files(config):
+    try:
+        upload_file_path = config["upload_file_path"]
+        geo_dir = os.path.join(upload_file_path, "地理")
+        for filename in os.listdir(geo_dir):
+            if filename.lower().endswith(".docx"):
+                docx_file_path = os.path.join(geo_dir, filename)
+                process_geo_test_paper(docx_file_path, config)
+    except Exception as e:
+        logging.error("处理 geo 文件夹时出现错误: %s", e, exc_info=True)
 
 if __name__ == "__main__":
-    process_geo_files("config.json")
+    try:
+        process_geo_files(config)
+    except Exception as e:
+        logging.critical("主程序运行时发生致命错误: %s", e, exc_info=True)
