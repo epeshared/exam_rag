@@ -2,6 +2,7 @@ import os
 import re
 import json
 import logging
+import logging.handlers
 import docx
 import torch
 from PIL import Image, UnidentifiedImageError
@@ -12,25 +13,9 @@ from transformers import (
 from qwen_vl_utils import process_vision_info
 
 # --- 先加载配置 ---
-try:
-    with open("config.json", "r", encoding="utf-8") as f:
-        config = json.load(f)
-except Exception as e:
-    print("加载配置文件出错:", e)
-    raise
+from log_config import get_logger
+logger = get_logger(__name__, "logs/preprocess_geo.log")
 
-# 从 config 中读取日志级别，默认为 INFO
-log_level_str = config.get("log_level", "INFO").upper()
-log_level = getattr(logging, log_level_str, logging.INFO)
-logging.basicConfig(
-    level=log_level,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("logs/geo_processing.log", mode="a", encoding="utf-8"),
-        logging.StreamHandler()
-    ]
-)
-logging.info("日志配置成功，日志级别：%s", log_level_str)
 
 ##############################################
 # 1) 加载图像描述模型 (Qwen2.5-VL-7B-Instruct)
@@ -38,7 +23,7 @@ logging.info("日志配置成功，日志级别：%s", log_level_str)
 
 def load_chinese_image_captioning_model(model_name):
     try:
-        logging.info("加载图像描述模型: %s", model_name)
+        logger.info("加载图像描述模型: %s", model_name)
         processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
             model_name,
@@ -48,22 +33,22 @@ def load_chinese_image_captioning_model(model_name):
         )
         model.eval()
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        logging.info("模型加载成功，使用设备: %s", device)
+        logger.info("模型加载成功，使用设备: %s", device)
         return processor, model, device
     except Exception as e:
-        logging.error("加载图像描述模型时发生错误: %s", e, exc_info=True)
+        logger.error("加载图像描述模型时发生错误: %s", e, exc_info=True)
         raise
 
 def chinese_image_caption_inference(image_path, processor, model, device, prompt="请用中文描述这张图片"):
     try:
         image = Image.open(image_path).convert("RGB")
     except (OSError, UnidentifiedImageError) as e:
-        logging.error("无法打开图片 %s: %s", image_path, e, exc_info=True)
+        logger.error("无法打开图片 %s: %s", image_path, e, exc_info=True)
         return "[无法识别的图片格式]"
 
     w, h = image.size
     if w < 28 or h < 28:
-        logging.warning("图片 %s 太小 (%dx%d)，无法处理", image_path, w, h)
+        logger.warning("图片 %s 太小 (%dx%d)，无法处理", image_path, w, h)
         return "[图片太小，无法处理]"
 
     messages = [{
@@ -85,10 +70,10 @@ def chinese_image_caption_inference(image_path, processor, model, device, prompt
             generated_ids_trimmed.append(out_ids[len(in_ids):])
         caption = processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True)
         result = caption[0].strip() if caption else ""
-        logging.info("生成图片描述成功: %s", result)
+        logger.info("生成图片描述成功: %s", result)
         return result
     except Exception as e:
-        logging.error("生成图片描述失败: %s", e, exc_info=True)
+        logger.error("生成图片描述失败: %s", e, exc_info=True)
         return "[描述生成失败]"
 
 ##############################################
@@ -101,7 +86,7 @@ def extract_text_and_images_from_docx(docx_file, base_image_dir):
         image_dir = os.path.join(base_image_dir, base)
         if not os.path.exists(image_dir):
             os.makedirs(image_dir)
-            logging.info("创建图片保存目录: %s", image_dir)
+            logger.info("创建图片保存目录: %s", image_dir)
 
         doc_object = docx.Document(docx_file)
         image_counter = 0
@@ -123,7 +108,7 @@ def extract_text_and_images_from_docx(docx_file, base_image_dir):
                             out_path = os.path.join(image_dir, image_filename)
                             with open(out_path, "wb") as f:
                                 f.write(part._blob)
-                            logging.info("提取图片: %s", out_path)
+                            logger.info("提取图片: %s", out_path)
                             paragraph_chunks.append(f"[{image_filename}]")
                         else:
                             paragraph_chunks.append("[image_no_rid]")
@@ -136,7 +121,7 @@ def extract_text_and_images_from_docx(docx_file, base_image_dir):
                 final_lines.append(line_text)
         return "\n".join(final_lines), image_dir
     except Exception as e:
-        logging.error("提取 docx 文本和图片时出错: %s", e, exc_info=True)
+        logger.error("提取 docx 文本和图片时出错: %s", e, exc_info=True)
         raise
 
 ##############################################
@@ -150,18 +135,19 @@ def replace_image_placeholders_with_captions(text, image_dir, processor, model, 
         image_number = match.group(1)
         image_filename = f"image{image_number}.png"
         image_path = os.path.join(image_dir, image_filename)
-        logging.info("正在处理图片: %s", image_path)
+        logger.info("正在处理图片: %s", image_path)
         if os.path.exists(image_path):
             caption = chinese_image_caption_inference(image_path, processor, model, device)
             return f"[{image_path}] {caption} [/]"
+
         else:
-            logging.warning("图片未找到: %s", image_path)
+            logger.warning("图片未找到: %s", image_path)
             return f"[图片 {image_filename} 未找到] [/]"
     try:
         new_text = pattern.sub(_replace_func, text)
         return new_text
     except Exception as e:
-        logging.error("替换图片占位符时出错: %s", e, exc_info=True)
+        logger.error("替换图片占位符时出错: %s", e, exc_info=True)
         return text
 
 ##############################################
@@ -208,7 +194,7 @@ def chunk_exam_geography(raw_text):
         cleaned = "\n".join(l.strip() for l in chunk_lines if l.strip())
         if cleaned:
             chunks.append(cleaned)
-    logging.info("文本分块完成，共分 %d 块", len(chunks))
+    logger.info("文本分块完成，共分 %d 块", len(chunks))
     return chunks
 
 ##############################################
@@ -232,7 +218,7 @@ def extract_chunk_relationships(chunks):
             "chunk_text": chunk,
             "images": images
         })
-    logging.info("提取 chunk 与图片关系完成")
+    logger.info("提取 chunk 与图片关系完成")
     return relationships
 
 def save_relationships(docx_file, relationships, output_path):
@@ -240,25 +226,25 @@ def save_relationships(docx_file, relationships, output_path):
     try:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
-        logging.info("关系信息已保存到 %s", output_path)
+        logger.info("关系信息已保存到 %s", output_path)
     except Exception as e:
-        logging.error("保存关系信息时出错: %s", e, exc_info=True)
+        logger.error("保存关系信息时出错: %s", e, exc_info=True)
 
 def save_chunks_as_files(docx_file, chunks, base_output_dir):
     base = os.path.splitext(os.path.basename(docx_file))[0]
     output_dir = os.path.join(base_output_dir, base)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-        logging.info("创建 chunks 输出目录: %s", output_dir)
+        logger.info("创建 chunks 输出目录: %s", output_dir)
     for idx, chunk in enumerate(chunks, start=1):
         filename = f"chunk_{idx}.txt"
         filepath = os.path.join(output_dir, filename)
         try:
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(chunk)
-            logging.info("保存 chunk %d 到 %s", idx, filepath)
+            logger.info("保存 chunk %d 到 %s", idx, filepath)
         except Exception as e:
-            logging.error("保存 chunk %d 时出错: %s", idx, e, exc_info=True)
+            logger.error("保存 chunk %d 时出错: %s", idx, e, exc_info=True)
 
 ##############################################
 # 7) 加载文本 embedding 模型，并对每个 chunk 做 embedding
@@ -267,16 +253,16 @@ def save_chunks_as_files(docx_file, chunks, base_output_dir):
 def load_embedding_model(model_path):
     try:
         from transformers import AutoModel, AutoTokenizer
-        logging.info("加载 embedding 模型: %s", model_path)
+        logger.info("加载 embedding 模型: %s", model_path)
         embed_tokenizer = AutoTokenizer.from_pretrained(model_path)
         embed_model = AutoModel.from_pretrained(model_path)
         embed_model.eval()
         embed_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         embed_model.to(embed_device)
-        logging.info("Embedding 模型加载成功，使用设备: %s", embed_device)
+        logger.info("Embedding 模型加载成功，使用设备: %s", embed_device)
         return embed_tokenizer, embed_model, embed_device
     except Exception as e:
-        logging.error("加载 embedding 模型时出错: %s", e, exc_info=True)
+        logger.error("加载 embedding 模型时出错: %s", e, exc_info=True)
         raise
 
 def compute_chunk_embedding(chunk_text, embed_tokenizer, embed_model, embed_device, max_length=512, stride=256):
@@ -297,50 +283,50 @@ def compute_chunk_embedding(chunk_text, embed_tokenizer, embed_model, embed_devi
                 window_emb = outputs.last_hidden_state.mean(dim=1)
             embeddings.append(window_emb.squeeze(0))
         final_embedding = torch.stack(embeddings, dim=0).mean(dim=0)
-        logging.info("Chunk embedding 计算完成")
+        logger.info("Chunk embedding 计算完成")
         return final_embedding.squeeze().cpu().tolist()
     except Exception as e:
-        logging.error("计算 chunk embedding 时出错: %s", e, exc_info=True)
+        logger.error("计算 chunk embedding 时出错: %s", e, exc_info=True)
         return []
 
 def save_embeddings(docx_file, embeddings, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-        logging.info("创建 embedding 输出目录: %s", output_dir)
+        logger.info("创建 embedding 输出目录: %s", output_dir)
     base = os.path.splitext(os.path.basename(docx_file))[0]
     emb_filepath = os.path.join(output_dir, f"{base}.emb")
     try:
         with open(emb_filepath, "w", encoding="utf-8") as f:
             json.dump(embeddings, f, ensure_ascii=False, indent=4)
-        logging.info("Embedding结果已保存到 %s", emb_filepath)
+        logger.info("Embedding结果已保存到 %s", emb_filepath)
     except Exception as e:
-        logging.error("保存 embedding 结果时出错: %s", e, exc_info=True)
+        logger.error("保存 embedding 结果时出错: %s", e, exc_info=True)
 
 ##############################################
 # 主程序示例
 ##############################################
 
-def process_geo_test_paper(docx_file, config):
+def process_geo_test_paper(docx_file, config, class_name):
     try:
-        base_image_dir = os.path.join(config["base_image_dir"], "地理")
-        base_chunks_output_dir = os.path.join(config["base_chunks_output_dir"], "地理")
+        base_image_dir = os.path.join(config["base_image_dir"], class_name)
+        base_chunks_output_dir = os.path.join(config["base_chunks_output_dir"], class_name)
         relationships_output_file = config["relationships_output_file"]
-        embedding_output_dir = os.path.join(config["embedding_output_dir"], "地理")
+        embedding_output_dir = os.path.join(config["embedding_output_dir"], class_name)
         qwen_model_name = config["vl_model_path"]
         embedding_model_path = config["embedding_model_path"]
-        logging.info("开始处理文件: %s", docx_file)
+        logger.info("开始处理文件: %s", docx_file)
 
         processor, model, device = load_chinese_image_captioning_model(qwen_model_name)
         text_with_placeholders, file_image_dir = extract_text_and_images_from_docx(docx_file, base_image_dir)
-        logging.debug("提取到的文本(含占位符):\n%s", text_with_placeholders)
+        logger.debug("提取到的文本(含占位符):\n%s", text_with_placeholders)
 
         text_with_captions = replace_image_placeholders_with_captions(text_with_placeholders, file_image_dir, processor, model, device)
         text_with_captions = remove_line_numbering(text_with_captions)
-        logging.debug("替换后(带中文图片描述)的文本:\n%s", text_with_captions)
+        logger.debug("替换后(带中文图片描述)的文本:\n%s", text_with_captions)
 
         question_chunks = chunk_exam_geography(text_with_captions)
         for i, chunk in enumerate(question_chunks, start=1):
-            logging.debug("第%d块内容:\n%s", i, chunk)
+            logger.debug("第%d块内容:\n%s", i, chunk)
 
         relationships = extract_chunk_relationships(question_chunks)
         save_relationships(docx_file, relationships, relationships_output_file)
@@ -352,9 +338,9 @@ def process_geo_test_paper(docx_file, config):
             emb = compute_chunk_embedding(chunk, embed_tokenizer, embed_model, embed_device)
             embeddings[idx] = emb
         save_embeddings(docx_file, embeddings, output_dir=embedding_output_dir)
-        logging.info("处理文件 %s 完成", docx_file)
+        logger.info("处理文件 %s 完成", docx_file)
     except Exception as e:
-        logging.error("处理文件 %s 时出现未捕获错误: %s", docx_file, e, exc_info=True)
+        logger.error("处理文件 %s 时出现未捕获错误: %s", docx_file, e, exc_info=True)
 
 def process_geo_files(config):
     try:
@@ -363,12 +349,19 @@ def process_geo_files(config):
         for filename in os.listdir(geo_dir):
             if filename.lower().endswith(".docx"):
                 docx_file_path = os.path.join(geo_dir, filename)
-                process_geo_test_paper(docx_file_path, config)
+                process_geo_test_paper(docx_file_path, config, "地理")
     except Exception as e:
-        logging.error("处理 geo 文件夹时出现错误: %s", e, exc_info=True)
+        logger.error("处理 geo 文件夹时出现错误: %s", e, exc_info=True)
 
 if __name__ == "__main__":
     try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+    except Exception as e:
+        logger.critical("加载配置文件出错: %s", e, exc_info=True)
+        raise    
+
+    try:
         process_geo_files(config)
     except Exception as e:
-        logging.critical("主程序运行时发生致命错误: %s", e, exc_info=True)
+        logger.critical("主程序运行时发生致命错误: %s", e, exc_info=True)
