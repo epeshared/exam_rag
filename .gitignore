@@ -5,3 +5,4 @@ chunks_texts/
 embedding/
 logs/
 *.logs
+__pycache__/
