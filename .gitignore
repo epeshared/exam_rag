@@ -8,3 +8,4 @@ logs/
 __pycache__/
 __pycache__/*
 .gradio/
+wrong_questions/

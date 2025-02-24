@@ -6,6 +6,7 @@
     "embedding_output_dir": "../embedding/",
     "vl_model_path": "/nvme0/models/Qwen/Qwen2.5-VL-7B-Instruct/",
     "embedding_model_path": "/nvme0/models/BAAI/bge-large-zh-v1.5",
+    "wrong_question_path": "../wrong_questions/",
     "log_path": "../logs/logs.log",
     "log_level": "INFO"
 }

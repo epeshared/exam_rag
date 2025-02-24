@@ -5,12 +5,12 @@ import tempfile
 import io
 import streamlit as st
 from PIL import Image
-from docx import Document
 from log_config import get_logger
 from vdb_index import VectorDBIndex
 from query_embedding import get_query_embedding_bge
 from image_caption import load_chinese_image_captioning_model, chinese_image_caption_inference
 from docx_generator import generate_search_docx
+from preprocess_files import process_single_file  
 
 # 加载配置文件
 with open("config.json", "r", encoding="utf-8") as f:
@@ -19,116 +19,128 @@ with open("config.json", "r", encoding="utf-8") as f:
 # 通过配置文件设置日志路径
 log_path = config.get("log_path")
 logger = get_logger(__name__, log_file=log_path)
+vl_model_name = config["vl_model_path"]
+processor, model, device = load_chinese_image_captioning_model(vl_model_name)
 
-st.title("错题整理系统 - 查询相关错题")
-st.write("请输入查询文本或上传图片，系统将自动生成查询向量并检索相似错题，然后生成 DOCX 文档。")
-
-# 文本输入框
-text_input = st.text_area("查询文本（可选）", height=150)
-# 图片上传组件
-image_file = st.file_uploader("上传图片（可选）", type=["png", "jpg", "jpeg"])
-
-# 初始化向量数据库索引（以“地理”课程为示例）
-EMBEDDINGS_DIR = os.path.join(config["embedding_output_dir"], "地理")
-vdb = VectorDBIndex(engine="faiss")
-vdb.load_all_embeddings(EMBEDDINGS_DIR)
-vdb.build_index()
-
-# 加载图像描述模型（例如 Qwen2.5-VL-7B-Instruct）
-VL_MODEL_PATH = config.get("vl_model_path", "/nvme0/models/Qwen/Qwen2.5-VL-7B-Instruct/")
-processor, caption_model, caption_device = load_chinese_image_captioning_model(VL_MODEL_PATH)
-
-# def generate_search_docx(results, config, course):
-#     """
-#     根据搜索结果生成 DOCX 文档。
-#     每个搜索结果的详细内容从对应的文本文件中读取，路径格式：
-#       os.path.join(config["base_chunks_output_dir"], course, doc_name, f"chunk_{chunk_id}.txt")
-#     返回 DOCX 文件的二进制内容。
-#     """
-#     doc = Document()
-#     doc.add_heading("相关错题汇总", level=1)
-    
-#     base_chunks_dir = config["base_chunks_output_dir"]
-    
-#     for res in results:
-#         meta = res["metadata"]
-#         distance = res["distance"]
-#         doc_name = meta["doc"]
-#         chunk_id = meta["chunk_id"]
-#         # 添加标题信息
-#         heading_text = f"文档: {doc_name} 题目编号: {chunk_id}, 距离: {distance:.4f}"
-#         doc.add_heading(heading_text, level=2)
-        
-#         # 构造对应的文本文件路径
-#         chunk_file_path = os.path.join(base_chunks_dir, course, doc_name, f"chunk_{chunk_id}.txt")
-#         if os.path.exists(chunk_file_path):
-#             with open(chunk_file_path, "r", encoding="utf-8") as f:
-#                 chunk_content = f.read()
-#         else:
-#             chunk_content = "未找到题目内容文件。"
-#         doc.add_paragraph(chunk_content)
-#         doc.add_page_break()
-    
-#     # 将生成的 DOCX 保存到 BytesIO 对象中
-#     file_stream = io.BytesIO()
-#     doc.save(file_stream)
-#     file_stream.seek(0)
-#     return file_stream
-
-def process_query(text_input, image_file):
+def upload_exam_paper():
     """
-    根据用户输入的文本和上传的图片生成查询向量，
-    利用向量索引搜索相似错题，并生成包含详细信息的 DOCX 文档供下载。
+    上传试卷功能：
+      - 用户选择试卷所属科目；
+      - 上传试卷文件后，将文件保存到配置项 "upload_file_path" 对应的科目目录下，
+        如果目录不存在则创建（文件存在则覆盖）；
+      - 保存后调用 preprocess_files.py 中的 process_single_file 进行预处理。
     """
-    query_text = ""
-    if image_file is not None:
-        try:
-            image = Image.open(image_file)
-        except Exception as e:
-            st.error("上传的图片无法打开，请检查格式。")
-            logger.error("图片打开失败: %s", e, exc_info=True)
-            return "图片无法打开。"
-        # 保存图片到临时文件，以便调用图像描述模型
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-            temp_path = tmp.name
-            image.save(temp_path)
-        caption = chinese_image_caption_inference(temp_path, processor, caption_model, caption_device)
-        os.remove(temp_path)
-        logger.info("图片描述生成: %s", caption)
-        query_text = caption.strip()
+    st.title("上传试卷")
+    st.write("请选择科目并上传试卷文件。")
+    course_upload = st.selectbox("选择试卷所属科目", ["语文", "数学", "英语", "历史", "地理", "政治"])
+    exam_file = st.file_uploader("上传试卷文件", type=["docx", "pdf", "txt", "png", "jpg", "jpeg"])
     
-    if text_input and text_input.strip():
-        if query_text:
-            query_text = text_input.strip() + " " + query_text
+    if st.button("上传试卷"):
+        if exam_file is None:
+            st.error("请先上传试卷文件。")
         else:
-            query_text = text_input.strip()
-    
-    if not query_text:
-        return "请输入查询文本或上传图片！"
-    
-    logger.info("最终查询文本：%s", query_text)
-    # 使用 BGE 模型生成查询向量
-    query_embedding = get_query_embedding_bge(query_text)
-    if query_embedding is None:
-        return "生成查询向量失败，请检查日志。"
-    
-    query_vector = np.array(query_embedding, dtype="float32").reshape(1, -1)
-    results = vdb.search(query_vector, k=5)
-    if not results:
-        return "未找到相似题目。"
-    
-    # 生成 DOCX 文档
-    docx_stream = generate_search_docx(results, config, "地理")
-    
-    # 使用 Streamlit 下载按钮提供下载
-    st.download_button(
-        label="下载相关错题文档",
-        data=docx_stream,
-        file_name="related_mistakes.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
-    return "相关错题文档已生成，请点击上方按钮下载。"
+            # 从配置中获取上传路径
+            upload_base_path = config.get("upload_file_path", "upload_files")
+            subject_dir = os.path.join(upload_base_path, course_upload)
+            if not os.path.exists(subject_dir):
+                os.makedirs(subject_dir)
+                logger.info("创建目录: %s", subject_dir)
+            filename = exam_file.name if exam_file.name else "exam_file"
+            file_path = os.path.join(subject_dir, filename)
+            try:
+                with open(file_path, "wb") as f:
+                    f.write(exam_file.getvalue())
+                st.success(f"试卷文件已保存到 {file_path}")
+                logger.info("试卷 %s 保存到 %s 成功", filename, subject_dir)
+                # 调用预处理函数
+                process_single_file(config, course_upload, file_path)
+                st.success(f"试卷已上传并预处理。科目：{course_upload}")
+                logger.info("试卷 %s 上传并预处理成功，科目：%s", filename, course_upload)
+            except Exception as e:
+                st.error("试卷上传或预处理失败，请检查日志。")
+                logger.error("处理试卷 %s 时出错: %s", filename, e, exc_info=True)
 
-if st.button("查询相关错题"):
-    result_message = process_query(text_input, image_file)
-    st.text_area("提示信息", result_message, height=100)
+def query_wrong_question():
+    """
+    查询错题功能：
+      - 用户选择错题所属科目，并输入查询文本或上传错题文件（文本或图片）；
+      - 上传的错题文件保存到配置项 "wrong_question_path" 对应科目目录下（目录不存在则创建，存在则覆盖）；
+      - 读取文本内容（当前仅对 txt 文件处理），与文本输入内容合并为最终查询文本；
+      - 利用 BGE 模型生成查询向量，然后使用 VectorDBIndex 检索相似错题，
+      - 生成包含详细信息的 DOCX 文档，并通过下载按钮提供下载。
+    """
+    st.title("查询错题")
+    st.write("请选择科目，输入查询文本或上传错题文件，系统将保存上传的文件，并生成相关错题 DOCX 文档。")
+    subject = st.selectbox("选择错题所属科目", ["语文", "数学", "英语", "历史", "地理", "政治"])
+    query_text_input = st.text_area("查询文本（可选）", height=150)
+    wrong_file = st.file_uploader("上传错题文件（可选，文本或图片）", type=["txt", "docx", "png", "jpg", "jpeg"])
+    
+    if st.button("上传并查询错题"):
+        saved_query_text = ""
+        if wrong_file is not None:
+            wrong_base_path = config.get("wrong_question_path", "wrong_questions")
+            subject_dir = os.path.join(wrong_base_path, subject)
+            if not os.path.exists(subject_dir):
+                os.makedirs(subject_dir)
+                logger.info("创建目录: %s", subject_dir)
+            wrong_filename = wrong_file.name if wrong_file.name else "wrong_question"
+            file_path = os.path.join(subject_dir, wrong_filename)
+            try:
+                with open(file_path, "wb") as f:
+                    f.write(wrong_file.getvalue())
+                st.success(f"错题文件已保存到 {file_path}")
+                logger.info("错题文件 %s 保存到 %s 成功", wrong_filename, subject_dir)
+                # 如果文件为文本类型（这里仅处理 txt 文件），读取内容作为查询文本
+                if wrong_filename.lower().endswith("txt"):
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        saved_query_text = f.read().strip()
+            except Exception as e:
+                st.error("错题文件保存失败，请检查日志。")
+                logger.error("保存错题文件 %s 时出错: %s", wrong_filename, e, exc_info=True)
+            
+            saved_query_text = chinese_image_caption_inference(file_path, processor, model, device)
+            logger.info("图片描述文本：%s", saved_query_text)
+
+        # 合并文本输入和上传文件的内容
+        final_query_text = ""
+        if query_text_input and query_text_input.strip():
+            final_query_text = query_text_input.strip()
+        if saved_query_text:
+            final_query_text = (final_query_text + " " + saved_query_text).strip() if final_query_text else saved_query_text
+        if not final_query_text:
+            st.error("请提供查询文本或上传错题文件！")
+        else:
+            logger.info("最终查询文本：%s", final_query_text)
+            # 初始化向量数据库索引（加载对应科目下的 embedding 文件）
+            EMBEDDINGS_DIR = os.path.join(config["embedding_output_dir"], subject)
+            vdb = VectorDBIndex(engine="faiss")
+            vdb.load_all_embeddings(EMBEDDINGS_DIR)
+            vdb.build_index()
+            # 使用 BGE 模型生成查询向量
+            query_embedding = get_query_embedding_bge(final_query_text)
+            if query_embedding is None:
+                st.error("生成查询向量失败，请检查日志。")
+            else:
+                query_vector = np.array(query_embedding, dtype="float32").reshape(1, -1)
+                results = vdb.search(query_vector, k=5)
+                if not results:
+                    st.info("未找到相似错题。")
+                else:
+                    # 生成 DOCX 文档
+                    docx_stream = generate_search_docx(results, config, subject)
+                    st.download_button(
+                        label="下载相关错题文档",
+                        data=docx_stream,
+                        file_name="related_mistakes.docx",
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    )
+                    st.success("相关错题文档已生成，请点击上方按钮下载。")
+
+# 主程序侧边栏导航
+st.sidebar.title("导航")
+app_mode = st.sidebar.selectbox("选择功能", ["上传试卷", "查询错题"])
+
+if app_mode == "上传试卷":
+    upload_exam_paper()
+elif app_mode == "查询错题":
+    query_wrong_question()
