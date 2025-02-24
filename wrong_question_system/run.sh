@@ -1,0 +1,1 @@
+streamlit run main.py --server.watchFiles false --server.address 0.0.0.0

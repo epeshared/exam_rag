@@ -1,18 +1,18 @@
 # text_chunk.py
 import re
-from wrong_question_system.log_config import get_logger
+from log_config import get_logger
 
 import json
 with open("config.json", "r", encoding="utf-8") as f:
     config = json.load(f)
 
-log_path = config.get("log_path", "logs/logs.log")
+log_path = config.get("log_path")
 logger = get_logger(__name__, log_file=log_path)
 
 def chunk_exam_geography(raw_text):
     BOUNDARY_KEYWORDS = [
         "完成下面小题", "回答下面小题", "阅读材料，回答问题", "阅读资料，回答下列问题",
-        "读资料，回答下列问题", "阅读资料，回答下列问题"
+        "读资料，回答下列问题", "阅读资料，回答下列问题","回答下列问题"
     ]
     lines = raw_text.splitlines()
     chunks = []

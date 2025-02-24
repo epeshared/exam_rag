@@ -1,16 +1,16 @@
 # main.py
 import os
 import json
-from wrong_question_system.log_config import get_logger
-from wrong_question_system.docx_parser import extract_text_and_images_from_docx, replace_image_placeholders_with_captions, remove_line_numbering
-from wrong_question_system.image_caption import load_chinese_image_captioning_model
-from wrong_question_system.text_chunk import chunk_exam_geography, extract_chunk_relationships
-from wrong_question_system.embedding import load_embedding_model, compute_chunk_embedding, save_embeddings
+from log_config import get_logger
+from docx_parser import extract_text_and_images_from_docx, replace_image_placeholders_with_captions, remove_line_numbering
+from image_caption import load_chinese_image_captioning_model
+from text_chunk import chunk_exam_geography, extract_chunk_relationships
+from embedding import load_embedding_model, compute_chunk_embedding, save_embeddings
 
 with open("config.json", "r", encoding="utf-8") as f:
     config = json.load(f)
 
-log_path = config.get("log_path", "logs/logs.log")
+log_path = config.get("log_path")
 logger = get_logger(__name__, log_file=log_path)
 
 def save_relationships(docx_file, relationships, output_path):
@@ -37,7 +37,7 @@ def save_chunks_as_files(docx_file, chunks, base_output_dir):
         except Exception as e:
             logger.error("保存 chunk %d 时出错: %s", idx, e, exc_info=True)
 
-def process_geo_test_paper(docx_file, config, class_name):
+def process_test_paper(docx_file, config, class_name):
     try:
         base_image_dir = os.path.join(config["base_image_dir"], class_name)
         base_chunks_output_dir = os.path.join(config["base_chunks_output_dir"], class_name)
@@ -50,6 +50,7 @@ def process_geo_test_paper(docx_file, config, class_name):
         # 图像描述模型与 DOCX 解析
         processor, model, device = load_chinese_image_captioning_model(qwen_model_name)
         text_with_placeholders, file_image_dir = extract_text_and_images_from_docx(docx_file, base_image_dir)
+        logger.info("file_image_dir:\n%s",file_image_dir)
         logger.debug("提取到的文本(含占位符):\n%s", text_with_placeholders)
 
         # 替换图片占位符，并去除行首编号
@@ -83,7 +84,7 @@ def process_geo_files(config):
         for filename in os.listdir(geo_dir):
             if filename.lower().endswith(".docx"):
                 docx_file_path = os.path.join(geo_dir, filename)
-                process_geo_test_paper(docx_file_path, config, "地理")
+                process_test_paper(docx_file_path, config, "地理")
     except Exception as e:
         logger.error("处理 geo 文件夹时出现错误: %s", e, exc_info=True)
 

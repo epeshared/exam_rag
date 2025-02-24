@@ -8,7 +8,7 @@ import json
 with open("config.json", "r", encoding="utf-8") as f:
     config = json.load(f)
 
-log_path = config.get("log_path", "logs/logs.log")
+log_path = config.get("log_path")
 logger = get_logger(__name__, log_file=log_path)
 
 def get_query_embedding_deepseek(query: str) -> list:
